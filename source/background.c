@@ -2076,12 +2076,22 @@ int background_solve(
         printf("     -> Omega_Lambda = %g, wished %g\n",
                pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_lambda]/pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_crit], pba->Omega0_lambda);
       }
-      printf("     -> parameters: [lambda, alpha, A, B] = \n");
-      printf("                    [");
-      for (index_scf=0; index_scf<pba->scf_parameters_size-1; index_scf++) {
-        printf("%.3f, ",pba->scf_parameters[index_scf]);
+      if (pba->scf_potential == quad){
+        printf("     -> parameters: [m, phi_i, phi_prime_i] = \n");
+        printf("                    [");
+        for (index_scf=0; index_scf<pba->scf_parameters_size-1; index_scf++) {
+          printf("%.3g, ",pba->scf_parameters[index_scf]);
+        }
+        printf("%.3g]\n",pba->scf_parameters[pba->scf_parameters_size-1]);
       }
-      printf("%.3f]\n",pba->scf_parameters[pba->scf_parameters_size-1]);
+      else {
+        printf("     -> parameters: [lambda, alpha, A, B] = \n");
+        printf("                    [");
+        for (index_scf=0; index_scf<pba->scf_parameters_size-1; index_scf++) {
+          printf("%.3f, ",pba->scf_parameters[index_scf]);
+        }
+        printf("%.3f]\n",pba->scf_parameters[pba->scf_parameters_size-1]);
+      }
     }
   }
 
@@ -2277,8 +2287,8 @@ int background_initial_conditions(
     else {
       printf("Not using attractor initial conditions\n");
       /** - --> If no attractor initial conditions are assigned, gets the provided ones. */
-      pvecback_integration[pba->index_bi_phi_scf] = pba->phi_ini_scf;
-      pvecback_integration[pba->index_bi_phi_prime_scf] = pba->phi_prime_ini_scf;
+      pvecback_integration[pba->index_bi_phi_scf] = pba->scf_parameters[pba->scf_parameters_size-2];
+      pvecback_integration[pba->index_bi_phi_prime_scf] = pba->scf_parameters[pba->scf_parameters_size-1];
     }
     class_test(!isfinite(pvecback_integration[pba->index_bi_phi_scf]) ||
                !isfinite(pvecback_integration[pba->index_bi_phi_scf]),
@@ -2981,17 +2991,32 @@ double ddV_p_scf(
 double V_scf(
              struct background *pba,
              double phi) {
-  return  V_e_scf(pba,phi)*V_p_scf(pba,phi);
+  if (pba->scf_potential == quad){
+    return 1./2.*pow(pba->scf_parameters[0],2)*pow(phi,2);
+  }
+  else {
+    return  V_e_scf(pba,phi)*V_p_scf(pba,phi);
+  }
 }
 
 double dV_scf(
               struct background *pba,
               double phi) {
-  return dV_e_scf(pba,phi)*V_p_scf(pba,phi) + V_e_scf(pba,phi)*dV_p_scf(pba,phi);
+  if (pba->scf_potential == quad){
+    return pow(pba->scf_parameters[0],2)*phi;
+  }
+  else {
+    return dV_e_scf(pba,phi)*V_p_scf(pba,phi) + V_e_scf(pba,phi)*dV_p_scf(pba,phi);
+  }
 }
 
 double ddV_scf(
                struct background *pba,
                double phi) {
-  return ddV_e_scf(pba,phi)*V_p_scf(pba,phi) + 2*dV_e_scf(pba,phi)*dV_p_scf(pba,phi) + V_e_scf(pba,phi)*ddV_p_scf(pba,phi);
+  if (pba->scf_potential == quad){
+    return pow(pba->scf_parameters[0],2);
+  }
+  else {
+    return ddV_e_scf(pba,phi)*V_p_scf(pba,phi) + 2*dV_e_scf(pba,phi)*dV_p_scf(pba,phi) + V_e_scf(pba,phi)*ddV_p_scf(pba,phi);
+  }
 }
