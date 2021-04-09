@@ -28,6 +28,10 @@ enum vecback_format {short_info, normal_info, long_info};
 
 enum interpolation_method {inter_normal, inter_closeby};
 
+/** Scalar field potential parametrisations */
+
+enum scf_potential {orig, quad};
+
 /**
  * background structure containing all the background information that
  * other modules need to know.
@@ -116,6 +120,8 @@ struct background
   double phi_ini_scf;      /**< \f$ \phi(t_0) \f$: scalar field initial value */
   double phi_prime_ini_scf;/**< \f$ d\phi(t_0)/d\tau \f$: scalar field initial derivative wrt conformal time */
   int scf_parameters_size; /**< size of scf_parameters */
+
+  enum scf_potential scf_potential; /**< scf potential form - orig for class original, quad for quadratic 1/2 m^2 phi^2 */
 
   //@}
 

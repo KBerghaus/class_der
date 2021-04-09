@@ -515,6 +515,7 @@ int input_shooting(struct file_content * pfc,
   /** Define local variables */
   int flag1;
   double param1;
+  char string1[_ARGUMENT_LENGTH_MAX_];
   double * unknown_parameter;
   int unknown_parameters_size;
   int counter, index_target, i;
@@ -558,6 +559,17 @@ int input_shooting(struct file_content * pfc,
 
   *has_shooting=_FALSE_;
 
+  /** Check if we want class to shoot, can be turned off with flag do_shooting = no  */ // TK added
+  class_call(parser_read_string(pfc,"do_shooting",&string1,&flag1,errmsg),
+            errmsg,
+            errmsg);
+  if ((flag1 == _TRUE_) && ((strstr(string1,"n") != NULL) || (strstr(string1,"N") != NULL))) {
+    fzw.do_shooting = _FALSE_;
+  }
+  else {
+    fzw.do_shooting = _TRUE_;
+  }
+
   /** Do we need to fix unknown parameters? */
   unknown_parameters_size = 0;
   fzw.required_computation_stage = 0;
@@ -565,7 +577,7 @@ int input_shooting(struct file_content * pfc,
     class_call(parser_read_double(pfc,target_namestrings[index_target],&param1,&flag1,errmsg),
                errmsg,
                errmsg);
-    if (flag1 == _TRUE_){
+    if ( (flag1 == _TRUE_) && ((fzw.do_shooting == _TRUE_) || (target_namestrings[index_target] != "Omega_scf")) ){
       /* input_needs_shoting_for_target takes care of the case where, for
          instance, Omega_dcdmdr is set to 0.0, and we don't need shooting */
       class_call(input_needs_shooting_for_target(pfc,
@@ -1127,11 +1139,19 @@ int input_get_guess(double *xguess,
        * dxdy[index_guess] = -0.5081*pow(ba.Omega0_scf,-9./7.)`;
        * Version 3: use attractor solution
        * */
-      if (ba.scf_tuning_index == 0){
+      if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == orig) ){
         xguess[index_guess] = sqrt(3.0/ba.Omega0_scf);
         dxdy[index_guess] = -0.5*sqrt(3.0)*pow(ba.Omega0_scf,-1.5);
       }
-      else{
+      else if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == quad) ) {
+        xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[0],2) , 0.5);
+        dxdy[index_guess] = pow(3.*ba.H0*ba.H0/2./pow(ba.scf_parameters[0],2)/ba.Omega0_scf , 0.5);
+      }
+      else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == quad) ) {
+        xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[1],2) , 0.5);
+        dxdy[index_guess] = pow(3.*ba.H0*ba.H0/2./pow(ba.scf_parameters[1],2)/ba.Omega0_scf , 0.5);
+      }
+      else {
         /* Default: take the passed value as xguess and set dxdy to 1. */
         xguess[index_guess] = ba.scf_parameters[ba.scf_tuning_index];
         dxdy[index_guess] = 1.;
@@ -1345,6 +1365,10 @@ int input_try_unknown_parameters(double * unknown_parameter,
     case Omega_scf:
       /** In case scalar field is used to fill, pba->Omega0_scf is not equal to pfzw->target_value[i].*/
       output[i] = ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.H0*ba.H0)-ba.Omega0_scf;
+      if (input_verbose > 7) printf("Current Omega_scf = %e \t\t Omega_scf wanted = %e \t\t difference = %e \n",
+                                    ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.H0*ba.H0),
+                                    ba.Omega0_scf,
+                                    output[i]);
       break;
     case Omega_ini_dcdm:
     case omega_ini_dcdm:
@@ -2940,6 +2964,25 @@ int input_read_parameters_species(struct file_content * pfc,
     /** 8.b.4) Shooting parameter */
     /* Read */
     class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
+
+    /** 8.b.5) Which scf potential is wanted? */
+    class_call(parser_read_string(pfc,
+                                  "scf_potential",
+                                  &string1,
+                                  &flag1,
+                                  errmsg),
+                errmsg,
+                errmsg);
+    /* Complete set of parameters */
+    if (flag1 == _TRUE_){
+      if( (strstr(string1,"quad") != NULL) || (strstr(string1,"phi2") != NULL) ) {
+        pba->scf_potential = quad;
+        if (input_verbose > 0){
+          printf(" -> using 1/2 m^2 phi^2 scalar field potential with m = %g\n",pba->scf_parameters[0]);
+        }
+      }
+    }
+
     /* Complete set of parameters */
     scf_lambda = pba->scf_parameters[0];
     if ((fabs(scf_lambda) < 3.)&&(pba->background_verbose>1)){
@@ -5348,6 +5391,7 @@ int input_default_params(struct background *pba,
   /** 9.b.1) Potential parameters and initial conditions */
   pba->scf_parameters = NULL;
   pba->scf_parameters_size = 0;
+  pba->scf_potential = orig;
   /** 9.b.2) Initial conditions from attractor solution */
   pba->attractor_ic_scf = _TRUE_;
   pba->phi_ini_scf = 1;                // MZ: initial conditions are as multiplicative
