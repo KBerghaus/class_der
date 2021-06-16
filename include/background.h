@@ -35,7 +35,7 @@ enum interpolation_method {inter_normal, inter_closeby};
 
 /** Scalar field potential parametrisations */
 
-enum scf_potential {orig, quad};
+enum scf_potential {orig, quad, lin};
 
 /**
  * background structure containing all the background information that
@@ -131,7 +131,7 @@ struct background
   enum varconst_dependence varconst_dep; /**< dependence of the varying fundamental constants as a function of time */
   double varconst_transition_redshift; /**< redshift of transition between varied fundamental constants and normal fundamental constants in the 'varconst_instant' case*/
 
-  enum scf_potential scf_potential; /**< scf potential form - orig for class original, quad for quadratic 1/2 m^2 phi^2 */
+  enum scf_potential scf_potential; /**< scf potential form - orig for class original, quad for quadratic 1/2 m^2 phi^2, lin for linear C phi */
 
   //@}
 

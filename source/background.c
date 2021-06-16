@@ -2084,6 +2084,16 @@ int background_solve(
         }
         printf("%.3g]\n",pba->scf_parameters[pba->scf_parameters_size-1]);
       }
+      if (pba->scf_potential == lin){
+        printf("     -> parameters: [C, phi_i, phi_prime_i] = \n");
+        printf("                    [");
+        for (index_scf=0; index_scf<pba->scf_parameters_size-1; index_scf++) {
+          printf("%.3g, ",pba->scf_parameters[index_scf]);
+        }
+        printf("%.3g]\n",pba->scf_parameters[pba->scf_parameters_size-1]);
+      }
+
+
       else {
         printf("     -> parameters: [lambda, alpha, A, B] = \n");
         printf("                    [");
@@ -2994,6 +3004,9 @@ double V_scf(
   if (pba->scf_potential == quad){
     return 1./2.*pow(pba->scf_parameters[0],2)*pow(phi,2);
   }
+  if (pba->scf_potential == lin){
+    return pba->scf_parameters[0]*phi;
+  }
   else {
     return  V_e_scf(pba,phi)*V_p_scf(pba,phi);
   }
@@ -3005,6 +3018,9 @@ double dV_scf(
   if (pba->scf_potential == quad){
     return pow(pba->scf_parameters[0],2)*phi;
   }
+  if (pba->scf_potential == lin){
+    return pba->scf_parameters[0];
+  }
   else {
     return dV_e_scf(pba,phi)*V_p_scf(pba,phi) + V_e_scf(pba,phi)*dV_p_scf(pba,phi);
   }
@@ -3015,6 +3031,9 @@ double ddV_scf(
                double phi) {
   if (pba->scf_potential == quad){
     return pow(pba->scf_parameters[0],2);
+  }
+  if (pba->scf_potential == lin){
+    return 0;
   }
   else {
     return ddV_e_scf(pba,phi)*V_p_scf(pba,phi) + 2*dV_e_scf(pba,phi)*dV_p_scf(pba,phi) + V_e_scf(pba,phi)*ddV_p_scf(pba,phi);

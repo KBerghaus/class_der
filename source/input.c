@@ -1267,6 +1267,20 @@ int input_get_guess(double *xguess,
         xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[1],2) , 0.5);
         dxdy[index_guess] = pow(3.*ba.H0*ba.H0/2./pow(ba.scf_parameters[1],2)/ba.Omega0_scf , 0.5);
       }
+
+      else if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == lin) ) {
+        xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
+        dxdy[index_guess] = 1;
+      }
+      else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == lin) ) {
+        xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
+        dxdy[index_guess] = 1;
+      }
+
+
+
+
+
       else {
         /* Default: take the passed value as xguess and set dxdy to 1. */
         xguess[index_guess] = ba.scf_parameters[ba.scf_tuning_index];
@@ -3388,6 +3402,16 @@ int input_read_parameters_species(struct file_content * pfc,
         }
       }
     }
+
+    if (flag1 == _TRUE_){
+      if( (strstr(string1,"lin") != NULL) || (strstr(string1,"phi1") != NULL) ) {
+        pba->scf_potential = lin;
+        if (input_verbose > 0){
+          printf(" -> using C phi scalar field potential with C = %g\n",pba->scf_parameters[0]);
+        }
+      }
+    }
+
 
     /* Complete set of parameters */
     scf_lambda = pba->scf_parameters[0];
