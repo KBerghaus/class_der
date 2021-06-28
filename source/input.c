@@ -5976,7 +5976,9 @@ int input_default_params(struct background *pba,
   pba->scf_tuning_index = 0;
   /** 9.b.4) Shooting parameter */
   pba->shooting_failed = _FALSE_;
-  /** 9.b.5) extra scf properties for output */
+  /** 9.b.5) Do we have a linear potential and phi < 0? then we are not in a well-defined regime, raise this flag */
+  pba->scf_lin_phi_neg;
+  /** 9.b.6) extra scf properties for output */
   pba->Omega0_scf_ke = 0.;
   pba->w_scf_0 = -1.;
   pba->w_scf_p3 = -1.;

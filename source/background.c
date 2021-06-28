@@ -490,6 +490,8 @@ int background_functions(
         if (pba->scf_parameterisation == da_de){
       pvecback[pba->index_bg_da_friction] = pba->scf_Y_da; // TK ?????????????? currently hard coded constant friction
     }
+
+    if ( (pba->scf_potential == lin) && (phi < 0) ) pba->scf_lin_phi_neg = _TRUE_;
   }
 
   /* ncdm */
