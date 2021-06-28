@@ -479,6 +479,8 @@ int background_functions(
     rho_r += 3.*pvecback[pba->index_bg_p_scf]; //field pressure contributes radiation
     rho_m += pvecback[pba->index_bg_rho_scf] - 3.* pvecback[pba->index_bg_p_scf]; //the rest contributes matter
     //printf(" a= %e, Omega_scf = %f, \n ",a, pvecback[pba->index_bg_rho_scf]/rho_tot );
+
+    if ( (pba->scf_potential == lin) && (phi < 0) ) pba->scf_lin_phi_neg = _TRUE_;
   }
 
   /* ncdm */

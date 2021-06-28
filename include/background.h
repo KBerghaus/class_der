@@ -126,6 +126,7 @@ struct background
   double phi_ini_scf;      /**< \f$ \phi(t_0) \f$: scalar field initial value */
   double phi_prime_ini_scf;/**< \f$ d\phi(t_0)/d\tau \f$: scalar field initial derivative wrt conformal time */
   int scf_parameters_size; /**< size of scf_parameters */
+  short scf_lin_phi_neg;   /**< Is the scf potential linear and phi < 0 at any time? raise this flag, checked in pertbs so that theta_* shooting is safe */
   double Omega0_scf_ke;    /**< \f$ \Omega_{scf, ke}^0 \f$: energy density in scf kinetic energy today */
   double w_scf_0;          /**< \f$ w_{scf}(z=0) \f$: eq of state of scf at z = 0 */
   double w_scf_p3;         /**< \f$ w_{scf}(z=0.3) \f$: eq of state of scf at z = 0.3 */
