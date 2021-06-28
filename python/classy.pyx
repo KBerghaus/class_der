@@ -1832,6 +1832,28 @@ cdef class Class:
                 value = self.ba.T_idr/self.ba.T_cmb
             elif name == 'N_dg':
                 value = self.ba.Omega0_idr/self.ba.Omega0_g*8./7.*pow(11./4.,4./3.)
+            elif name == 'w_fld_0':
+                value = self.ba.w_fld_0
+            elif name == 'w_fld_p3':
+                value = self.ba.w_fld_p3
+            elif name == 'w_fld_p7':
+                value = self.ba.w_fld_p7
+            elif name == 'w_fld_1':
+                value = self.ba.w_fld_1
+            elif name == 'w_fld_2':
+                value = self.ba.w_fld_2
+            elif name == 'Omega0_scf_ke':
+                value = self.ba.Omega0_scf_ke
+            elif name == 'w_scf_0':
+                value = self.ba.w_scf_0
+            elif name == 'w_scf_p3':
+                value = self.ba.w_scf_p3
+            elif name == 'w_scf_p7':
+                value = self.ba.w_scf_p7
+            elif name == 'w_scf_1':
+                value = self.ba.w_scf_1
+            elif name == 'w_scf_2':
+                value = self.ba.w_scf_2
             elif name == 'Gamma_0_nadm':
                 value = self.th.a_idm_dr*(4./3.)*(self.ba.h*self.ba.h*self.ba.Omega0_idr)
             elif name == 'a_dark':

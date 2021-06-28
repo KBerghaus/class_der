@@ -5411,6 +5411,12 @@ int input_default_params(struct background *pba,
   pba->wa_fld = 0.;
   /** 9.a.2.2) 'EDE' case */
   pba->Omega_EDE = 0.;
+  /** 9.a.3) extra fld properties for output */
+  pba->w_fld_0 = -1.;
+  pba->w_fld_p3 = -1.;
+  pba->w_fld_p7 = -1.;
+  pba->w_fld_1 = -1.;
+  pba->w_fld_2 = -1.;
   /** 9.b) Omega scalar field */
   /** 9.b.1) Potential parameters and initial conditions */
   pba->scf_parameters = NULL;
@@ -5424,6 +5430,14 @@ int input_default_params(struct background *pba,
   pba->scf_tuning_index = 0;
   /** 9.b.4) Shooting parameter */
   pba->shooting_failed = _FALSE_;
+  /** 9.b.5) extra scf properties for output */
+  pba->Omega0_scf_ke = 0.;
+  pba->w_scf_0 = -1.;
+  pba->w_scf_p3 = -1.;
+  pba->w_scf_p7 = -1.;
+  pba->w_scf_1 = -1.;
+  pba->w_scf_2 = -1.;
+
 
   /**
    * Deafult to input_read_parameters_heating
