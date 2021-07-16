@@ -33,6 +33,9 @@ enum vecback_format {short_info, normal_info, long_info};
 
 enum interpolation_method {inter_normal, inter_closeby};
 
+/** list of scalr field parametrisations - original CLASS, ede interacting with either DM or nu, da_ede for dissipative axion EDE */
+enum scf_parameterisation{original, da_de};
+
 /** Scalar field potential parametrisations */
 
 enum scf_potential {orig, quad, lin};
@@ -111,6 +114,7 @@ struct background
   double Omega0_lambda;    /**< \f$ \Omega_{0_\Lambda} \f$: cosmological constant */
   double Omega0_fld;       /**< \f$ \Omega_{0 de} \f$: fluid */
   double Omega0_scf;       /**< \f$ \Omega_{0 scf} \f$: scalar field */
+  enum scf_parameterisation scf_parameterisation; /** to store scf parameterisation info, whether original or da_de  */
   short use_ppf; /**< flag switching on PPF perturbation equations instead of true fluid equations for perturbations. It could have been defined inside
                     perturbation structure, but we leave it here in such way to have all fld parameters grouped. */
   double c_gamma_over_c_fld; /**< ppf parameter defined in eq. (16) of 0808.3125 [astro-ph] */
@@ -130,6 +134,9 @@ struct background
   double varconst_me; /**< electron mass for varying fundamental constants */
   enum varconst_dependence varconst_dep; /**< dependence of the varying fundamental constants as a function of time */
   double varconst_transition_redshift; /**< redshift of transition between varied fundamental constants and normal fundamental constants in the 'varconst_instant' case*/
+  double scf_Y_da;          /** Friction experienced by dissipative axion DE in Mpc^(-1) */
+  double Omega0_da_dr;      /**< \f$ \Omega_{0 idm_dr} \f$: dissipative axion dark radiation */
+  double Omega_ini_da_dr;   /**< Initial fractional energy density of dissipative axion dark radiation */
 
   enum scf_potential scf_potential; /**< scf potential form - orig for class original, quad for quadratic 1/2 m^2 phi^2, lin for linear C phi */
 
@@ -191,6 +198,9 @@ struct background
   int index_bg_rho_scf;       /**< scalar field energy density */
   int index_bg_p_scf;         /**< scalar field pressure */
   int index_bg_p_prime_scf;         /**< scalar field pressure */
+
+  int index_bg_rho_da_dr;     /**< dark radiation energy density for dr that interacts with DA DE */
+  int index_bg_da_friction;  /** dissipative axion friction */
 
   int index_bg_rho_ncdm1;     /**< density of first ncdm species (others contiguous) */
   int index_bg_p_ncdm1;       /**< pressure of first ncdm species (others contiguous) */
@@ -267,6 +277,9 @@ struct background
   int index_bi_rho_fld; /**< {B} fluid density */
   int index_bi_phi_scf;       /**< {B} scalar field value */
   int index_bi_phi_prime_scf; /**< {B} scalar field derivative wrt conformal time */
+  int index_bi_rho_da_dr;     /**< {B} DA dr density */
+
+ 
 
   int index_bi_time;    /**< {C} proper (cosmological) time in Mpc */
   int index_bi_rs;      /**< {C} sound horizon */
@@ -293,6 +306,7 @@ struct background
   short has_idm;       /**< presence of interacting dark matter with photons, baryons, and idr */
   short has_dcdm;      /**< presence of decaying cold dark matter? */
   short has_dr;        /**< presence of relativistic decay radiation? */
+  short has_da_dr;     /**< presence of dissipative axion sourcing dark radiation? */
   short has_scf;       /**< presence of a scalar field? */
   short has_ncdm;      /**< presence of non-cold dark matter? */
   short has_lambda;    /**< presence of cosmological constant? */
