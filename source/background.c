@@ -479,6 +479,9 @@ int background_functions(
     rho_r += 3.*pvecback[pba->index_bg_p_scf]; //field pressure contributes radiation
     rho_m += pvecback[pba->index_bg_rho_scf] - 3.* pvecback[pba->index_bg_p_scf]; //the rest contributes matter
     //printf(" a= %e, Omega_scf = %f, \n ",a, pvecback[pba->index_bg_rho_scf]/rho_tot );
+        if (pba->scf_parameterisation == da_de){
+      pvecback[pba->index_bg_da_friction] = pba->scf_Y_da; // TK ?????????????? currently hard coded constant friction
+    }
   }
 
   /* ncdm */
@@ -1008,6 +1011,10 @@ int background_indices(
   class_define_index(pba->index_bg_rho_scf,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_p_scf,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_p_prime_scf,pba->has_scf,index_bg,1);
+
+    /* - indices for dissipative axion scf */
+  class_define_index(pba->index_bg_rho_da_dr,(pba->has_scf && pba->scf_parameterisation == da_de),index_bg,1);
+  class_define_index(pba->index_bg_da_friction,(pba->has_scf && pba->scf_parameterisation == da_de),index_bg,1);
 
   /* - index for Lambda */
   class_define_index(pba->index_bg_rho_lambda,pba->has_lambda,index_bg,1);
@@ -2203,11 +2210,11 @@ int background_initial_conditions(
       pvecback_integration[pba->index_bi_phi_prime_scf] = pba->scf_parameters[pba->scf_parameters_size-1];
     }
     class_test(!isfinite(pvecback_integration[pba->index_bi_phi_scf]) ||
-               !isfinite(pvecback_integration[pba->index_bi_phi_scf]),
+               !isfinite(pvecback_integration[pba->index_bi_phi_prime_scf]),
                pba->error_message,
                "initial phi = %e phi_prime = %e -> check initial conditions",
                pvecback_integration[pba->index_bi_phi_scf],
-               pvecback_integration[pba->index_bi_phi_scf]);
+               pvecback_integration[pba->index_bi_phi_prime_scf]);
   }
 
   /* Infer pvecback from pvecback_integration */
@@ -2571,6 +2578,11 @@ int background_derivs(
         written as \f$ d\phi/dlna = phi' / (aH) \f$ and \f$ d\phi'/dlna = -2*phi' - (a/H) dV \f$ */
     dy[pba->index_bi_phi_scf] = y[pba->index_bi_phi_prime_scf]/a/H;
     dy[pba->index_bi_phi_prime_scf] = - 2*y[pba->index_bi_phi_prime_scf] - a*dV_scf(pba,y[pba->index_bi_phi_scf])/H ;
+     /** - Scalar field equation: \f$ \phi'' + (2 a H + a Y) \phi' + a^2 dV = 0 \f$  (note H is wrt cosmological time)
+        written as \f$ d\phi/dlna = phi' / (aH) \f$ and \f$ d\phi'/dlna = -2*phi' -(Y/H)*phi'- (a/H) dV \f$ */
+        if (pba->scf_parameterisation == da_de){
+      dy[pba->index_bi_phi_prime_scf] += -y[pba->index_bg_da_friction]*y[pba->index_bi_phi_prime_scf]/H;
+    }
   }
 
   return _SUCCESS_;

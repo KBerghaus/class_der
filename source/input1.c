@@ -2968,71 +2968,16 @@ int input_read_parameters_species(struct file_content * pfc,
 
     /** 8.b.3) SCF tuning parameter */
     /* Read */
- //   class_read_int("scf_tuning_index",pba->scf_tuning_index);
+    class_read_int("scf_tuning_index",pba->scf_tuning_index);
     /* Test */
-  //  class_test(pba->scf_tuning_index >= pba->scf_parameters_size,
-  //             errmsg,
-  //             "Tuning index 'scf_tuning_index' (%d) is larger than the number of entries (%d) in 'scf_parameters'.",
-  //             pba->scf_tuning_index,pba->scf_parameters_size);
-
-          /** Check if the parameterisation specified is  dissipative axion DE or original scf of CLASS */
-    class_call(parser_read_string(pfc,
-                                 "scf_parameterisation",
-                                 &string1,
-                                 &flag1,
-                                 errmsg),
-                 errmsg,errmsg);
-    // Check if scf_parametrisation is set, then check if it's da_ede. Otherwise default to CLASS original scf
-    if ( (flag1 == _TRUE_) && (strstr(string1,"da_de") ) != NULL) {
-      pba->scf_parameterisation = da_de;
-      
-
-      class_call(parser_read_double(pfc,"scf_Y_da",&param1,&flag1,errmsg),
-                 errmsg,
-                 errmsg);
-      if (flag1 == _TRUE_){
-        pba->scf_Y_da = param1;
-      }
-      else{
-        class_test(_TRUE_,
-                   errmsg,
-                   "You have asked for dissipative axion scalar field, but not specified the friction through which it sources dark radiation.\nThis code is currently only set up for constant friction.\nSpecify friction with scf_Y_da in your .ini file.\n");
-        // class_call(parser_read_double(pfc,"scf_kaf_da",&param2,&flag2,errmsg),
-        //           errmsg,
-        //           errmsg);
-        // if (flag2 == _TRUE_){
-        //   pba->scf_kaf_da = param2;
-        // }
-        // else{
-        //   // class error
-        // }
-      }
-    }
-
-    else{
-       class_read_int("scf_tuning_index",pba->scf_tuning_index);
-       class_test(pba->scf_tuning_index >= pba->scf_parameters_size,
-              errmsg,
+    class_test(pba->scf_tuning_index >= pba->scf_parameters_size,
+               errmsg,
                "Tuning index 'scf_tuning_index' (%d) is larger than the number of entries (%d) in 'scf_parameters'.",
                pba->scf_tuning_index,pba->scf_parameters_size);
-       /** Assign shooting parameter */
-       class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
-
-        scf_lambda = pba->scf_parameters[0];
-       if ((fabs(scf_lambda) < 3.)&&(pba->background_verbose>1)){
-      printf("'scf_lambda' = %e < 3 won't be tracking (for exp quint) unless overwritten by tuning function.",scf_lambda);
-       }   
-
-
-    }
-
-
-
-
 
     /** 8.b.4) Shooting parameter */
     /* Read */
-  //  class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
+    class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
 
     /** 8.b.5) Which scf potential is wanted? */
     class_call(parser_read_string(pfc,
@@ -3063,11 +3008,55 @@ int input_read_parameters_species(struct file_content * pfc,
 
 
     /* Complete set of parameters */
-   // scf_lambda = pba->scf_parameters[0];
-  //  if ((fabs(scf_lambda) < 3.)&&(pba->background_verbose>1)){
-  //    printf("'scf_lambda' = %e < 3 won't be tracking (for exp quint) unless overwritten by tuning function.",scf_lambda);
+    scf_lambda = pba->scf_parameters[0];
+    if ((fabs(scf_lambda) < 3.)&&(pba->background_verbose>1)){
+      printf("'scf_lambda' = %e < 3 won't be tracking (for exp quint) unless overwritten by tuning function.",scf_lambda);
+    }
+  
+
+  return _SUCCESS_;
+
+}
+
+
+    /* Complete set of parameters */
+ //  scf_lambda = pba->scf_parameters[0];
+ //  if ((fabs(scf_lambda) < 3.)&&(pba->background_verbose>1)){
+  //   printf("'scf_lambda' = %e < 3 won't be tracking (for exp quint) unless overwritten by tuning function.",scf_lambda);
   //  }
+  /** -Read Omega_ini_da_dr or omega_ini_da_dr */
+   class_call(parser_read_double(pfc,"Omega_ini_da_dr",&param1,&flag1,errmsg),
+                 errmsg,
+                 errmsg);
+      class_call(parser_read_double(pfc,"omega_ini_da_dr",&param2,&flag2,errmsg),
+                 errmsg,
+                 errmsg);
+      class_test(((flag1 == _TRUE_) && (flag2 == _TRUE_)),
+                 errmsg,
+                 "In input file, you can only enter one of Omega_ini_da_dr or omega_ini_da_dr, choose one");
+      if (flag1 == _TRUE_)
+        pba->Omega_ini_da_dr = param1;
+      if (flag2 == _TRUE_)
+        pba->Omega_ini_da_dr = param2/pba->h/pba->h;
+
+           if (input_verbose > 2) {
+        printf("Assuming disssipative axion scalar field that sources dark radiation as in 1911.06281 or 1911.06281 \n ");
+        printf("\t-> Read in constant friction scf_Y_da = %e \n", pba->scf_Y_da);
+        printf("\t-> Scf params read in: m [1/Mpc] = %e \t phi_ini = %e \t phi_prime_ini = %e \n", pba->scf_parameters[0], pba->scf_parameters[1], pba->scf_parameters[2]);
+        printf("\t-> Read in initial density of dark radiation = %e \n", pba->Omega_ini_da_dr);
+      } 
+
+// CLASS original scf
+   
+
+
+
   }
+
+  
+
+
+
 
   return _SUCCESS_;
 
@@ -5453,7 +5442,7 @@ int input_default_params(struct background *pba,
   /** 9) Dark energy contributions */
   pba->Omega0_fld = 0.;
   pba->Omega0_scf = 0.;
-  pba->scf_parameterisation = original;
+  pba->scf_parameterization =original;
   pba->Omega0_lambda = 1.-pba->Omega0_k-pba->Omega0_g-pba->Omega0_ur-pba->Omega0_b-pba->Omega0_cdm-pba->Omega0_ncdm_tot-pba->Omega0_dcdmdr+pba->Omega0_idr+pba->Omega0_idm_dr;
   /** 8.a) Omega fluid */
   /** 8.a.1) PPF approximation */
@@ -5467,9 +5456,6 @@ int input_default_params(struct background *pba,
   pba->wa_fld = 0.;
   /** 9.a.2.2) 'EDE' case */
   pba->Omega_EDE = 0.;
-   /** 9.a.2.3) 'da DE' case */
-  pba->Omega0_da_dr = 0.;
-  pba->Omega_ini_da_dr = 0.; 
   /** 9.b) Omega scalar field */
   /** 9.b.1) Potential parameters and initial conditions */
   pba->scf_parameters = NULL;
@@ -5479,6 +5465,9 @@ int input_default_params(struct background *pba,
   pba->attractor_ic_scf = _TRUE_;
   pba->phi_ini_scf = 1;                // MZ: initial conditions are as multiplicative
   pba->phi_prime_ini_scf = 1;          //     factors of the radiation attractor values
+  pba->scf_Y_da = 0;
+  pba->Omega0_da_dr = 0;
+  pba->Omega_ini_da_dr = 0;
   /** 9.b.3) Tuning parameter */
   pba->scf_tuning_index = 0;
   /** 9.b.4) Shooting parameter */
