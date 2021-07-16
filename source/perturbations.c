@@ -495,6 +495,10 @@ int perturbations_init(
 
   /** - perform preliminary checks */
 
+  class_test((pba->has_scf == _TRUE_) && (pba->scf_potential == lin) && (pba->scf_lin_phi_neg == _TRUE_),
+             ppt->error_message,
+             "Have a linear scalar field potential and phi < 0 at some point. This is not a physically well-defined regime. Class stop");
+
   if (ppt->has_perturbations == _FALSE_) {
     if (ppt->perturbations_verbose > 0)
       printf("No sources requested. Perturbation module skipped.\n");

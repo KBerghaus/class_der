@@ -118,6 +118,12 @@ struct background
   double cs2_fld;  /**< \f$ c^2_{s~DE} \f$: sound speed of the fluid in the frame comoving with the fluid (so, this is
                         not [delta p/delta rho] in the synchronous or newtonian gauge!) */
   double Omega_EDE;        /**< \f$ wa_{DE} \f$: Early Dark Energy density parameter */
+  double w_fld_0;          /**< \f$ w_{scf}(z=0) \f$: eq of state of scf at z = 0 */
+  double w_fld_p3;         /**< \f$ w_{scf}(z=0.3) \f$: eq of state of scf at z = 0.3 */
+  double w_fld_p7;         /**< \f$ w_{scf}(z=0.7) \f$: eq of state of scf at z = 0.7 */
+  double w_fld_1;          /**< \f$ w_{scf}(z=1) \f$: eq of state of scf at z = 1 */
+  double w_fld_2;          /**< \f$ w_{scf}(z=2) \f$: eq of state of scf at z = 2 */
+
   double * scf_parameters; /**< list of parameters describing the scalar field potential */
   short attractor_ic_scf;  /**< whether the scalar field has attractor initial conditions */
   int scf_tuning_index;    /**< index in scf_parameters used for tuning */
@@ -127,6 +133,14 @@ struct background
   double scf_Y_da;          /** Friction experienced by dissipative axion DE in Mpc^(-1) */
   double Omega0_da_dr;      /**< \f$ \Omega_{0 idm_dr} \f$: dissipative axion dark radiation */
   double Omega_ini_da_dr;   /**< Initial fractional energy density of dissipative axion dark radiation */
+  short scf_lin_phi_neg;   /**< Is the scf potential linear and phi < 0 at any time? raise this flag, checked in pertbs so that theta_* shooting is safe */
+  double Omega0_scf_ke;    /**< \f$ \Omega_{scf, ke}^0 \f$: energy density in scf kinetic energy today */
+  double w_scf_0;          /**< \f$ w_{scf}(z=0) \f$: eq of state of scf at z = 0 */
+  double w_scf_p3;         /**< \f$ w_{scf}(z=0.3) \f$: eq of state of scf at z = 0.3 */
+  double w_scf_p7;         /**< \f$ w_{scf}(z=0.7) \f$: eq of state of scf at z = 0.7 */
+  double w_scf_1;          /**< \f$ w_{scf}(z=1) \f$: eq of state of scf at z = 1 */
+  double w_scf_2;          /**< \f$ w_{scf}(z=2) \f$: eq of state of scf at z = 2 */
+
 
   enum scf_potential scf_potential; /**< scf potential form - orig for class original, quad for quadratic 1/2 m^2 phi^2, lin for linear C phi */
 
