@@ -1255,29 +1255,52 @@ int input_get_guess(double *xguess,
        * dxdy[index_guess] = -0.5081*pow(ba.Omega0_scf,-9./7.)`;
        * Version 3: use attractor solution
        * */
+
+      if (ba.scf_parameterisation == da_de) {
+        if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == quad) ) {
+        xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[0],2) , 0.5);
+        dxdy[index_guess] = 1;
+        }
+        else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == quad) ) {
+        xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[1],2) , 0.5);
+        dxdy[index_guess] = 1;
+        }
+
+        else if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == lin) ) {
+        xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
+        dxdy[index_guess] = 1;
+        }
+        else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == lin) ) {
+        xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
+        dxdy[index_guess] = 1;
+        }
+      }
+
+      else if (ba.scf_parameterisation == original) {
+
       if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == orig) ){
         xguess[index_guess] = sqrt(3.0/ba.Omega0_scf);
         dxdy[index_guess] = -0.5*sqrt(3.0)*pow(ba.Omega0_scf,-1.5);
-      }
+        }
       else if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == quad) ) {
         xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[0],2) , 0.5);
         dxdy[index_guess] = pow(3.*ba.H0*ba.H0/2./pow(ba.scf_parameters[0],2)/ba.Omega0_scf , 0.5);
-      }
+        }
       else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == quad) ) {
         xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[1],2) , 0.5);
         dxdy[index_guess] = pow(3.*ba.H0*ba.H0/2./pow(ba.scf_parameters[1],2)/ba.Omega0_scf , 0.5);
-      }
+        }
 
       else if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == lin) ) {
         xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
         dxdy[index_guess] = 1;
-      }
+        }
       else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == lin) ) {
         xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
         dxdy[index_guess] = 1;
+        }
+
       }
-
-
 
 
 
@@ -3388,9 +3411,17 @@ int input_read_parameters_species(struct file_content * pfc,
                                  &flag1,
                                  errmsg),
                  errmsg,errmsg);
-    // Check if scf_parametrisation is set, then check if it's da_ede. Otherwise default to CLASS original scf
+    // Check if scf_parametrisation is set, then check if it's da_de. Otherwise default to CLASS original scf
     if ( (flag1 == _TRUE_) && (strstr(string1,"da_de") ) != NULL) {
       pba->scf_parameterisation = da_de;
+
+      class_read_int("scf_tuning_index",pba->scf_tuning_index);
+       class_test(pba->scf_tuning_index >= pba->scf_parameters_size,
+              errmsg,
+               "Tuning index 'scf_tuning_index' (%d) is larger than the number of entries (%d) in 'scf_parameters'.",
+               pba->scf_tuning_index,pba->scf_parameters_size);
+       /** Assign shooting parameter */
+       class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
       
 
       class_call(parser_read_double(pfc,"scf_Y_da",&param1,&flag1,errmsg),
@@ -3413,9 +3444,10 @@ int input_read_parameters_species(struct file_content * pfc,
         //   // class error
         // }
       }
+      
     }
 
-    else{
+    
        class_read_int("scf_tuning_index",pba->scf_tuning_index);
        class_test(pba->scf_tuning_index >= pba->scf_parameters_size,
               errmsg,
@@ -3430,7 +3462,7 @@ int input_read_parameters_species(struct file_content * pfc,
        }   
 
 
-    }
+    
 
 
 
