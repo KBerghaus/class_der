@@ -2627,7 +2627,7 @@ int background_derivs(
      /** - Scalar field equation: \f$ \phi'' + (2 a H + a Y) \phi' + a^2 dV = 0 \f$  (note H is wrt cosmological time)
         written as \f$ d\phi/dlna = phi' / (aH) \f$ and \f$ d\phi'/dlna = -2*phi' -(Y/H)*phi'- (a/H) dV \f$ */
        if (pba->scf_parameterisation == da_de){
-      dy[pba->index_bi_phi_prime_scf] += -pba->scf_Y_da*y[pba->index_bi_phi_prime_scf]/H;  
+      dy[pba->index_bi_phi_prime_scf] += -pvecback[pba->index_bg_da_friction]*y[pba->index_bi_phi_prime_scf]/H;  
      }
   }
 

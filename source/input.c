@@ -1401,9 +1401,9 @@ int input_try_unknown_parameters(double * unknown_parameter,
       break;
     case Omega_scf:
       /** In case scalar field is used to fill, pba->Omega0_scf is not equal to pfzw->target_value[i].*/
-      output[i] = ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.H0*ba.H0)-ba.Omega0_scf;
+      output[i] = ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot])-ba.Omega0_scf;
       if (input_verbose > 7) printf("Current Omega_scf = %e \t\t Omega_scf wanted = %e \t\t difference = %e \n",
-                                    ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.H0*ba.H0),
+                                    ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot]),
                                     ba.Omega0_scf,
                                     output[i]);
       break;
