@@ -1400,12 +1400,20 @@ int input_try_unknown_parameters(double * unknown_parameter,
       output[i] = (rho_dcdm_today+rho_dr_today)/(ba.H0*ba.H0)-pfzw->target_value[i]/ba.h/ba.h;
       break;
     case Omega_scf:
+      if(ba.has_da_dr == _TRUE_) {
       /** In case scalar field is used to fill, pba->Omega0_scf is not equal to pfzw->target_value[i].*/
+      output[i] = ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot])-ba.Omega0_scf + ba.Omega0_da_dr;
+      if (input_verbose > 7) printf("Current Omega_scf = %e \t\t Omega_scf wanted = %e \t\t difference = %e \n",
+                                    ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot]),
+                                    ba.Omega0_scf - ba.Omega0_da_dr,
+                                    output[i]);}
+      else  {
       output[i] = ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot])-ba.Omega0_scf;
       if (input_verbose > 7) printf("Current Omega_scf = %e \t\t Omega_scf wanted = %e \t\t difference = %e \n",
                                     ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot]),
                                     ba.Omega0_scf,
-                                    output[i]);
+                                    output[i]);         
+      }                  
       break;
     case Omega_ini_dcdm:
     case omega_ini_dcdm:
@@ -2891,10 +2899,18 @@ int input_read_parameters_species(struct file_content * pfc,
     }
   }
   else if ((flag3 == _TRUE_) && (param3 < 0.)){
+     if(pba->has_da_dr ==_TRUE_){
     /* Fill up with scalar field */
+     pba->Omega0_scf = 1. - pba->Omega0_k - Omega_tot;
+     if (input_verbose > 0){
+      printf(" -> matched budget equations by adjusting Omega_scf = %g\n",pba->Omega0_scf-pba->Omega0_da_dr );
+    }
+   }
+    else{
     pba->Omega0_scf = 1. - pba->Omega0_k - Omega_tot;
     if (input_verbose > 0){
       printf(" -> matched budget equations by adjusting Omega_scf = %g\n",pba->Omega0_scf);
+    }
     }
   }
 
