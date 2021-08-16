@@ -1,4 +1,3 @@
-/** @file background.h Documented includes for background module */
 
 #ifndef __BACKGROUND__
 #define __BACKGROUND__
@@ -203,6 +202,7 @@ struct background
   int index_bg_rho_ur;        /**< relativistic neutrinos/relics density */
   int index_bg_rho_dcdm;      /**< dcdm density */
   int index_bg_rho_dr;        /**< dr density */
+  int index_bg_rh0_da_dr;     /**< dissipative axion dark radiation density */
 
   int index_bg_phi_scf;       /**< scalar field value */
   int index_bg_phi_prime_scf; /**< scalar field derivative wrt conformal time */
