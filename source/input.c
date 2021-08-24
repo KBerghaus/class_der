@@ -529,7 +529,9 @@ int input_shooting(struct file_content * pfc,
                                        "omega_dcdmdr",
                                        "Omega_scf",
                                        "Omega_ini_dcdm",
-                                       "omega_ini_dcdm"};
+                                       "omega_ini_dcdm",
+                                       "sigma8",
+                                       "Omega_dadr_cons"};
 
   /* array of corresponding parameters that must be adjusted in order to meet the target (= unknown parameters) */
   char * const unknown_namestrings[] = {"h",                        /* unknown param for target '100*theta_s' */
@@ -538,7 +540,9 @@ int input_shooting(struct file_content * pfc,
                                         "omega_ini_dcdm",           /* unknown param for target 'omega_dcdmdr' */
                                         "scf_shooting_parameter",   /* unknown param for target 'Omega_scf' */
                                         "Omega_dcdmdr",             /* unknown param for target 'Omega_ini_dcdm' */
-                                        "omega_dcdmdr"};             /* unknown param for target 'omega_ini_dcdm' */
+                                        "omega_dcdmdr",             /* unknown param for target 'omega_ini_dcdm' */
+                                        "A_s",                      /* unknown param for target 'sigma8' */
+                                        "scf_Y_da"};                /* unknown param for target 'Omega_dadr_cons' */
 
   /* for each target, module up to which we need to run CLASS in order
      to compute the targetted quantities (not running the whole code
@@ -549,7 +553,9 @@ int input_shooting(struct file_content * pfc,
                                         cs_background,     /* computation stage for target 'omega_dcdmdr' */
                                         cs_background,     /* computation stage for target 'Omega_scf' */
                                         cs_background,     /* computation stage for target 'Omega_ini_dcdm' */
-                                        cs_background};     /* computation stage for target 'omega_ini_dcdm' */
+                                        cs_background,     /* computation stage for target 'omega_ini_dcdm' */
+                                        cs_nonlinear,      /* computation stage for target 'sigma8' */
+                                        cs_background};    /* computation stage for target 'Omega_dadr_cons' */
 
   struct fzerofun_workspace fzw;
 
@@ -1258,48 +1264,46 @@ int input_get_guess(double *xguess,
 
       if (ba.scf_parameterisation == da_de) {
         if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == quad) ) {
-        xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[0],2) , 0.5);
-        dxdy[index_guess] = 1;
+          xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[0],2) , 0.5);
+          dxdy[index_guess] = 1;
         }
         else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == quad) ) {
-        xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[1],2) , 0.5);
-        dxdy[index_guess] = 1;
+          xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[1],2) , 0.5);
+          dxdy[index_guess] = 1;
         }
 
         else if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == lin) ) {
-        xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
-        dxdy[index_guess] = 1;
+          xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
+          dxdy[index_guess] = 1;
         }
         else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == lin) ) {
-        xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
-        dxdy[index_guess] = 1;
+          xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
+          dxdy[index_guess] = 1;
         }
       }
 
       else if (ba.scf_parameterisation == original) {
-
-      if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == orig) ){
-        xguess[index_guess] = sqrt(3.0/ba.Omega0_scf);
-        dxdy[index_guess] = -0.5*sqrt(3.0)*pow(ba.Omega0_scf,-1.5);
+        if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == orig) ){
+          xguess[index_guess] = sqrt(3.0/ba.Omega0_scf);
+          dxdy[index_guess] = -0.5*sqrt(3.0)*pow(ba.Omega0_scf,-1.5);
         }
-      else if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == quad) ) {
-        xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[0],2) , 0.5);
-        dxdy[index_guess] = pow(3.*ba.H0*ba.H0/2./pow(ba.scf_parameters[0],2)/ba.Omega0_scf , 0.5);
+        else if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == quad) ) {
+          xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[0],2) , 0.5);
+          dxdy[index_guess] = pow(3.*ba.H0*ba.H0/2./pow(ba.scf_parameters[0],2)/ba.Omega0_scf , 0.5);
         }
-      else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == quad) ) {
-        xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[1],2) , 0.5);
-        dxdy[index_guess] = pow(3.*ba.H0*ba.H0/2./pow(ba.scf_parameters[1],2)/ba.Omega0_scf , 0.5);
-        }
-
-      else if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == lin) ) {
-        xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
-        dxdy[index_guess] = 1;
-        }
-      else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == lin) ) {
-        xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
-        dxdy[index_guess] = 1;
+        else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == quad) ) {
+          xguess[index_guess] = pow(6.*ba.H0*ba.H0*ba.Omega0_scf/pow(ba.scf_parameters[1],2) , 0.5);
+          dxdy[index_guess] = pow(3.*ba.H0*ba.H0/2./pow(ba.scf_parameters[1],2)/ba.Omega0_scf , 0.5);
         }
 
+        else if ( (ba.scf_tuning_index == 1) && (ba.scf_potential == lin) ) {
+          xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
+          dxdy[index_guess] = 1;
+        }
+        else if ( (ba.scf_tuning_index == 0) && (ba.scf_potential == lin) ) {
+          xguess[index_guess] = 3.*ba.H0*ba.H0*ba.Omega0_scf/ba.scf_parameters[0];
+          dxdy[index_guess] = 1;
+        }
       }
 
 
@@ -1340,6 +1344,12 @@ int input_get_guess(double *xguess,
       xguess[index_guess] = 2.43e-9/0.891*pfzw->target_value[index_guess];
       dxdy[index_guess] = 2.43e-9/0.891;
       break;
+    case Omega_dadr_cons:
+      /* Shoot for scf_Y_da using input Omega_dadr. This assumes constant friction.
+         A better way to do this all would be to remove all scf_Y_da, and base everything
+         off of scf_c_n_da and scf_n_da */
+         xguess[index_guess] = 0.35*pow(ba.scf_parameters[0],2)/(ba.Omega0_da_dr * ba.H0);
+         dxdy[index_guess] = 1;
     }
   }
 
@@ -1534,19 +1544,20 @@ int input_try_unknown_parameters(double * unknown_parameter,
       break;
     case Omega_scf:
       if(ba.has_da_dr == _TRUE_) {
-      /** In case scalar field is used to fill, pba->Omega0_scf is not equal to pfzw->target_value[i].*/
-      output[i] = ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot])-ba.Omega0_scf + ba.Omega0_da_dr;
-      if (input_verbose > 7) printf("Current Omega_scf = %e \t\t Omega_scf wanted = %e \t\t difference = %e \n",
-                                    ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot]),
-                                    ba.Omega0_scf - ba.Omega0_da_dr,
-                                    output[i]);}
+        /** In case scalar field is used to fill, pba->Omega0_scf is not equal to pfzw->target_value[i].*/
+        output[i] = ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot])-ba.Omega0_scf + ba.Omega0_da_dr;
+        if (input_verbose > 7) printf("Have da_dr. Current Omega_scf = %e \t\t Omega_scf wanted = %e \t\t difference = %e \n",
+                                      ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot]),
+                                      ba.Omega0_scf - ba.Omega0_da_dr,
+                                      output[i]);
+      }
       else  {
-      output[i] = ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot])-ba.Omega0_scf;
-      if (input_verbose > 7) printf("Current Omega_scf = %e \t\t Omega_scf wanted = %e \t\t difference = %e \n",
-                                    ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot]),
-                                    ba.Omega0_scf,
-                                    output[i]);         
-      }                  
+        output[i] = ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot])-ba.Omega0_scf;
+        if (input_verbose > 7) printf("No da_dr. Current Omega_scf = %e \t\t Omega_scf wanted = %e \t\t difference = %e \n",
+                                      ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_scf]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot]),
+                                      ba.Omega0_scf,
+                                      output[i]);
+      }
       break;
     case Omega_ini_dcdm:
     case omega_ini_dcdm:
@@ -1563,6 +1574,12 @@ int input_try_unknown_parameters(double * unknown_parameter,
     case S8:
       output[i] = fo.sigma8[fo.index_pk_m]*sqrt(ba.Omega0_m/0.3);
       break;
+    case Omega_dadr_cons:
+      output[i] = ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_da_dr]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot])-ba.Omega0_da_dr;
+      if (input_verbose > 7) printf("Current Omega_dadr = %e \t\t Omega_dadr wanted = %e \t\t difference = %e \n",
+                                    ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_da_dr]/(ba.background_table[(ba.bt_size-1)*ba.bg_size+ba.index_bg_rho_tot]),
+                                    ba.Omega0_da_dr,
+                                    output[i]);
     }
   }
 
@@ -2407,8 +2424,8 @@ int input_read_parameters_species(struct file_content * pfc,
   /** Summary: */
 
   /** - Define local variables */
-  int flag1, flag2, flag3;
-  double param1, param2, param3;
+  int flag1, flag2, flag3, flag_ede;
+  double param1, param2, param3, param_ede;
   char string1[_ARGUMENT_LENGTH_MAX_];
   int fileentries;
   int N_ncdm=0, n, entries_read;
@@ -3289,6 +3306,17 @@ int input_read_parameters_species(struct file_content * pfc,
     pba->Omega0_scf = param3;
     Omega_tot += pba->Omega0_scf;
   }
+  if (flag3 == _TRUE_){
+    /* Does input specify Omega0_da_dr to be shot for using scf_Y_da ?
+       This needs to have separate flags to not interfere with fld, Lambda and scf. */
+    class_call(parser_read_double(pfc,"Omega_dadr_cons",&param_ede,&flag_ede,errmsg),
+               errmsg,
+               errmsg);
+    if (flag_ede == _TRUE_) {
+      pba->Omega0_da_dr = param_ede;
+      Omega_tot += pba->Omega0_da_dr;
+    }
+  }
   /* Step 2 */
   if (flag1 == _FALSE_) {
     /* Fill with Lambda */
@@ -3305,18 +3333,33 @@ int input_read_parameters_species(struct file_content * pfc,
     }
   }
   else if ((flag3 == _TRUE_) && (param3 < 0.)){
-     if(pba->has_da_dr ==_TRUE_){
-    /* Fill up with scalar field */
-     pba->Omega0_scf = 1. - pba->Omega0_k - Omega_tot;
-     if (input_verbose > 0){
-      printf(" -> matched budget equations by adjusting Omega_scf = %g\n",pba->Omega0_scf-pba->Omega0_da_dr );
+    if ((pba->has_da_dr ==_TRUE_) && (flag_ede == _FALSE_)){
+      /* In the case of DA DR, without Omega_dr specified,
+        we fill with the sum of scf and da_dr.
+        First, set Omega_scf = 1- everything else.
+        Then in shooting, which will have info after running bg,
+        We shoot for matching ba(rho_scf/rho_tot) = Omega_scf - ba(Omega_dadr)
+        where the ba() variables are retrieved after running bg */
+      pba->Omega0_scf = 1. - pba->Omega0_k - Omega_tot;
+      if (input_verbose > 0){
+        printf(" -> matched budget equations by adjusting Omega_scf+Omega_dadr = %g \n",pba->Omega0_scf);
+      }
     }
-   }
+    else if ((pba->has_da_dr ==_TRUE_) && (flag_ede == _TRUE_)){
+      /* In the case of DA DR, with Omega_dr specified,
+        we fill with just scf, having adjusted Omega_tot for dadr.
+        So set Omega_scf = 1- everything else.
+        And shoot to match Omega_scf with phi_i and Omega_dadr with friction. */
+      pba->Omega0_scf = 1. - pba->Omega0_k - Omega_tot;
+      if (input_verbose > 0){
+        printf(" -> matched budget equations by adjusting Omega_scf = %g \n",pba->Omega0_scf);
+      }
+    }
     else{
-    pba->Omega0_scf = 1. - pba->Omega0_k - Omega_tot;
-    if (input_verbose > 0){
-      printf(" -> matched budget equations by adjusting Omega_scf = %g\n",pba->Omega0_scf);
-    }
+      pba->Omega0_scf = 1. - pba->Omega0_k - Omega_tot;
+      if (input_verbose > 0){
+        printf(" -> matched budget equations by adjusting Omega_scf = %g\n",pba->Omega0_scf);
+      }
     }
   }
 
@@ -3411,16 +3454,7 @@ int input_read_parameters_species(struct file_content * pfc,
       }
     }
 
-    /** 8.b.3) SCF tuning parameter */
-    /* Read */
- //   class_read_int("scf_tuning_index",pba->scf_tuning_index);
-    /* Test */
-  //  class_test(pba->scf_tuning_index >= pba->scf_parameters_size,
-  //             errmsg,
-  //             "Tuning index 'scf_tuning_index' (%d) is larger than the number of entries (%d) in 'scf_parameters'.",
-  //             pba->scf_tuning_index,pba->scf_parameters_size);
-
-          /** Check if the parameterisation specified is  dissipative axion DE or original scf of CLASS */
+    /** Check if the parameterisation specified is  dissipative axion DE or original scf of CLASS */
     class_call(parser_read_string(pfc,
                                  "scf_parameterisation",
                                  &string1,
@@ -3430,63 +3464,39 @@ int input_read_parameters_species(struct file_content * pfc,
     // Check if scf_parametrisation is set, then check if it's da_de. Otherwise default to CLASS original scf
     if ( (flag1 == _TRUE_) && (strstr(string1,"da_de") ) != NULL) {
       pba->scf_parameterisation = da_de;
-
-      class_read_int("scf_tuning_index",pba->scf_tuning_index);
-       class_test(pba->scf_tuning_index >= pba->scf_parameters_size,
-              errmsg,
-               "Tuning index 'scf_tuning_index' (%d) is larger than the number of entries (%d) in 'scf_parameters'.",
-               pba->scf_tuning_index,pba->scf_parameters_size);
-       /** Assign shooting parameter */
-       class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
-      
-
       class_call(parser_read_double(pfc,"scf_Y_da",&param1,&flag1,errmsg),
                  errmsg,
                  errmsg);
       if (flag1 == _TRUE_){
         pba->scf_Y_da = param1;
       }
-      else{
-        class_test(_TRUE_,
+      else {
+        /* Check if we're trying to shoot for scf_Y_da before complaining that no scf_Y_da is passed */
+        class_call(parser_read_double(pfc,"Omega_dadr_cons",&param_ede,&flag_ede,errmsg),
                    errmsg,
-                   "You have asked for dissipative axion scalar field, but not specified the friction through which it sources dark radiation.\nThis code is currently only set up for constant friction.\nSpecify friction with scf_Y_da in your .ini file.\n");
-        // class_call(parser_read_double(pfc,"scf_kaf_da",&param2,&flag2,errmsg),
-        //           errmsg,
-        //           errmsg);
-        // if (flag2 == _TRUE_){
-        //   pba->scf_kaf_da = param2;
-        // }
-        // else{
-        //   // class error
-        // }
+                   errmsg);
+        if (flag_ede == _FALSE_)
+        class_test(_TRUE_,
+                  errmsg,
+                  "You have asked for dissipative axion scalar field, but not specified the friction through which it sources dark radiation.\nThis code is currently only set up for constant friction.\nSpecify friction with scf_Y_da in your .ini file.\n");
       }
-      
+      printf("----> Setting scf_Y_da = %g", pba->scf_Y_da);
     }
-
-    
-       class_read_int("scf_tuning_index",pba->scf_tuning_index);
-       class_test(pba->scf_tuning_index >= pba->scf_parameters_size,
-              errmsg,
-               "Tuning index 'scf_tuning_index' (%d) is larger than the number of entries (%d) in 'scf_parameters'.",
-               pba->scf_tuning_index,pba->scf_parameters_size);
-       /** Assign shooting parameter */
-       class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
-
-        scf_lambda = pba->scf_parameters[0];
-       if ((fabs(scf_lambda) < 3.)&&(pba->background_verbose>1)){
-      printf("'scf_lambda' = %e < 3 won't be tracking (for exp quint) unless overwritten by tuning function.",scf_lambda);
-       }   
-
-
-    
-
-
-
-
-
-    /** 8.b.4) Shooting parameter */
+    /** 8.b.3) SCF tuning parameter */
     /* Read */
-  //  class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
+    class_read_int("scf_tuning_index",pba->scf_tuning_index);
+    /* Test */
+    class_test(pba->scf_tuning_index >= pba->scf_parameters_size,
+              errmsg,
+              "Tuning index 'scf_tuning_index' (%d) is larger than the number of entries (%d) in 'scf_parameters'.",
+              pba->scf_tuning_index,pba->scf_parameters_size);
+    /** 8.b.4) Shooting parameter */
+    /** Assign shooting parameter */
+    class_read_double("scf_shooting_parameter",pba->scf_parameters[pba->scf_tuning_index]);
+    scf_lambda = pba->scf_parameters[0];
+    if ((fabs(scf_lambda) < 3.)&&(pba->background_verbose>1)){
+     printf("'scf_lambda' = %e < 3 won't be tracking (for exp quint) unless overwritten by tuning function.",scf_lambda);
+    }
 
     /** 8.b.5) Which scf potential is wanted? */
     class_call(parser_read_string(pfc,
@@ -6004,7 +6014,6 @@ int input_default_params(struct background *pba,
   pba->Omega_EDE = 0.;
    /** 9.a.2.3) 'da DE' case */
   pba->Omega0_da_dr = 0.;
-  pba->Omega_ini_da_dr = 0.; 
   /** 9.a.3) extra fld properties for output */
   pba->w_fld_0 = -1.;
   pba->w_fld_p3 = -1.;

@@ -141,7 +141,7 @@ struct background
   double varconst_transition_redshift; /**< redshift of transition between varied fundamental constants and normal fundamental constants in the 'varconst_instant' case*/
   double scf_Y_da;          /** Friction experienced by dissipative axion DE in Mpc^(-1) */
   double Omega0_da_dr;      /**< \f$ \Omega_{0 idm_dr} \f$: dissipative axion dark radiation */
-  double Omega_ini_da_dr;   /**< Initial fractional energy density of dissipative axion dark radiation */
+  // double Omega_ini_da_dr;   /**< Initial fractional energy density of dissipative axion dark radiation */
   short scf_lin_phi_neg;   /**< Is the scf potential linear and phi < 0 at any time? raise this flag, checked in pertbs so that theta_* shooting is safe */
   double Omega0_scf_ke;    /**< \f$ \Omega_{scf, ke}^0 \f$: energy density in scf kinetic energy today */
   double w_scf_0;          /**< \f$ w_{scf}(z=0) \f$: eq of state of scf at z = 0 */
@@ -293,7 +293,7 @@ struct background
   int index_bi_phi_prime_scf; /**< {B} scalar field derivative wrt conformal time */
   int index_bi_rho_da_dr;     /**< {B} DA dr density */
 
- 
+
 
   int index_bi_time;    /**< {C} proper (cosmological) time in Mpc */
   int index_bi_rs;      /**< {C} sound horizon */

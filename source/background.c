@@ -487,9 +487,9 @@ int background_functions(
     rho_r += 3.*pvecback[pba->index_bg_p_scf]; //field pressure contributes radiation
     rho_m += pvecback[pba->index_bg_rho_scf] - 3.* pvecback[pba->index_bg_p_scf]; //the rest contributes matter
     //printf(" a= %e, Omega_scf = %f, \n ",a, pvecback[pba->index_bg_rho_scf]/rho_tot );
-        if (pba->scf_parameterisation == da_de){
-      pvecback[pba->index_bg_da_friction] = pba->scf_Y_da; // TK ?????????????? currently hard coded constant friction
-       pvecback[pba->index_bg_rho_da_dr] = pvecback_B[pba->index_bi_rho_da_dr];
+    if (pba->scf_parameterisation == da_de){
+      pvecback[pba->index_bg_da_friction] = pba->scf_Y_da; // TK currently hard coded constant friction
+      pvecback[pba->index_bg_rho_da_dr] = pvecback_B[pba->index_bi_rho_da_dr];
       rho_tot += pvecback[pba->index_bg_rho_da_dr];
       p_tot += (1./3.)*pvecback[pba->index_bg_rho_da_dr];
       dp_dloga += -(4./3.) * pvecback[pba->index_bg_rho_da_dr];
@@ -1010,14 +1010,11 @@ int background_indices(
       pba->has_dr = _TRUE_;
   }
 
-  /*if (pba->Omega0_scf != 0.)
-    pba->has_scf = _TRUE_;*/
-
   if (pba->Omega0_scf != 0.){
     pba->has_scf = _TRUE_;
     if (pba->scf_parameterisation == da_de)
       pba->has_da_dr = _TRUE_;
-  }  
+  }
 
   if (pba->Omega0_lambda != 0.)
     pba->has_lambda = _TRUE_;
@@ -2012,7 +2009,7 @@ int background_solve(
     pba->Omega0_dr = pvecback_integration[pba->index_bi_rho_dr]/pba->H0/pba->H0;
   }
   if (pba->has_da_dr == _TRUE_){
-    pba->Omega0_da_dr = pvecback_integration[pba->index_bi_rho_da_dr]/pba->H0/pba->H0;
+    if (pba->Omega0_da_dr == 0.) pba->Omega0_da_dr = pvecback_integration[pba->index_bi_rho_da_dr]/pba->H0/pba->H0;
   }
   /* -> scale-invariant growth rate today */
   D_today = pvecback_integration[pba->index_bi_D];
@@ -2137,27 +2134,27 @@ int background_solve(
     }
     if (pba->has_scf == _TRUE_) {
       if(pba->has_da_dr == _TRUE_){
-      printf("    Scalar field details:\n");
-      printf("     -> Omega_scf = %g, wished %g\n",
-             pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_scf]/pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_crit], pba->Omega0_scf -pba->Omega0_da_dr );
-      if (pba->has_lambda == _TRUE_) {
-        printf("     -> Omega_Lambda = %g, wished %g\n",
-               pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_lambda]/pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_crit], pba->Omega0_lambda);
+        printf("    Scalar field details:\n");
+        printf("     -> Omega_scf = %g, wished %g\n",
+               pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_scf]/pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_crit], pba->Omega0_scf -pba->Omega0_da_dr );
+        if (pba->has_lambda == _TRUE_) {
+          printf("     -> Omega_Lambda = %g, wished %g\n",
+                 pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_lambda]/pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_crit], pba->Omega0_lambda);
+        }
+        printf("     -> Omega_scf_ke = %g\n",
+               pba->Omega0_scf_ke);
       }
-      printf("     -> Omega_scf_ke = %g\n",
-             pba->Omega0_scf_ke);
-      }    
-      else{ 
-      printf("    Scalar field details:\n");
-      printf("     -> Omega_scf = %g, wished %g\n",
-             pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_scf]/pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_crit], pba->Omega0_scf );
-      if (pba->has_lambda == _TRUE_) {
-        printf("     -> Omega_Lambda = %g, wished %g\n",
-               pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_lambda]/pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_crit], pba->Omega0_lambda);
+      else{
+        printf("    Scalar field details:\n");
+        printf("     -> Omega_scf = %g, wished %g\n",
+               pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_scf]/pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_crit], pba->Omega0_scf );
+        if (pba->has_lambda == _TRUE_) {
+          printf("     -> Omega_Lambda = %g, wished %g\n",
+                 pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_lambda]/pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_crit], pba->Omega0_lambda);
+        }
+        printf("     -> Omega_scf_ke = %g\n",
+               pba->Omega0_scf_ke);
       }
-      printf("     -> Omega_scf_ke = %g\n",
-             pba->Omega0_scf_ke);
-      }       
 
       if (pba->scf_potential == quad){
         printf("     -> parameters: [m, phi_i, phi_prime_i] = \n");
@@ -2167,7 +2164,7 @@ int background_solve(
         }
         printf("%.3g]\n",pba->scf_parameters[pba->scf_parameters_size-1]);
       }
-      if (pba->scf_potential == lin){
+      else if (pba->scf_potential == lin){
         printf("     -> parameters: [C, phi_i, phi_prime_i] = \n");
         printf("                    [");
         for (index_scf=0; index_scf<pba->scf_parameters_size-1; index_scf++) {
@@ -2175,14 +2172,6 @@ int background_solve(
         }
         printf("%.3g]\n",pba->scf_parameters[pba->scf_parameters_size-1]);
       }
-      if (pba->has_da_dr == _TRUE_){
-        printf("     -> Omega0_da_dr = %f\n",pba->Omega0_da_dr);
-        printf("     -> Omega0_da_dr + Omega0_scf = %f\n",(pba->Omega0_da_dr +  pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_scf]/pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_crit] ));
-      }
-
-      
-
-
       else {
         printf("     -> parameters: [lambda, alpha, A, B] = \n");
         printf("                    [");
@@ -2190,6 +2179,12 @@ int background_solve(
           printf("%.3f, ",pba->scf_parameters[index_scf]);
         }
         printf("%.3f]\n",pba->scf_parameters[pba->scf_parameters_size-1]);
+      }
+
+      if (pba->has_da_dr == _TRUE_){
+        printf("     -> Omega0_da_dr = %g\n",pba->Omega0_da_dr);
+        printf("     -> Omega0_da_dr + Omega0_scf = %g\n",(pba->Omega0_da_dr +  pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_scf]/pba->background_table[(pba->bt_size-1)*pba->bg_size+pba->index_bg_rho_crit] ));
+        printf("     -> Friction constant = %g [1/Mpc if constant, messy units otherwise]\n",pba->scf_Y_da); // TK KB make this adaptable once temp dependent friction is added
       }
     }
   }
@@ -2652,7 +2647,7 @@ int background_output_data(
     class_store_double(dataptr,pvecback[pba->index_bg_dV_scf],pba->has_scf,storeidx);
     class_store_double(dataptr,pvecback[pba->index_bg_ddV_scf],pba->has_scf,storeidx);
 
-        class_store_double(dataptr,pvecback[pba->index_bg_rho_da_dr],pba->has_da_dr,storeidx);
+    class_store_double(dataptr,pvecback[pba->index_bg_rho_da_dr],pba->has_da_dr,storeidx);
     class_store_double(dataptr,pvecback[pba->index_bg_da_friction],pba->has_da_dr,storeidx);
 
     class_store_double(dataptr,pvecback[pba->index_bg_rho_tot],_TRUE_,storeidx);
@@ -2776,11 +2771,11 @@ int background_derivs(
     dy[pba->index_bi_phi_prime_scf] = - 2*y[pba->index_bi_phi_prime_scf] - a*dV_scf(pba,y[pba->index_bi_phi_scf])/H ;
      /** - Scalar field equation: \f$ \phi'' + (2 a H + a Y) \phi' + a^2 dV = 0 \f$  (note H is wrt cosmological time)
         written as \f$ d\phi/dlna = phi' / (aH) \f$ and \f$ d\phi'/dlna = -2*phi' -(Y/H)*phi'- (a/H) dV \f$ */
-       if (pba->scf_parameterisation == da_de){
-      dy[pba->index_bi_phi_prime_scf] += -pvecback[pba->index_bg_da_friction]*y[pba->index_bi_phi_prime_scf]/H;  
-       /** - Compute da dr density \f$ \rho' = -4aH \rho - Upsilon / 3a * phi'^2 \f$ */
+    if (pba->scf_parameterisation == da_de){
+      dy[pba->index_bi_phi_prime_scf] += -pvecback[pba->index_bg_da_friction]*y[pba->index_bi_phi_prime_scf]/H;
+      /** - Compute da dr density \f$ \rho' = -4aH \rho - Upsilon / 3a * phi'^2 \f$ */
       dy[pba->index_bi_rho_da_dr] = -4.*y[pba->index_bi_rho_da_dr]
-        + pvecback[pba->index_bg_da_friction]/H/3./pow(a,2)*pow(y[pba->index_bi_phi_prime_scf],2);
+                                  + pvecback[pba->index_bg_da_friction]/H/3./pow(a,2)*pow(y[pba->index_bi_phi_prime_scf],2);
      }
   }
 
@@ -2963,7 +2958,7 @@ int background_output_budget(
     /*if(pba->has_da_dr ==_TRUE_){
       class_print_species("Dissipative Axion Dark Radiation ",da_dr);
       budget_radiation+=pba->Omega0_da_dr;}*/ /*already included in shooting for dark energy; do not count twice*/
-        
+
 
 
 
@@ -2980,10 +2975,13 @@ int background_output_budget(
     }
     if (pba->has_scf == _TRUE_) {
       if(pba->has_da_dr == _TRUE_){
-      class_print_species("Scalar Field + DA Dark Radiation",scf);
-      budget_other+=pba->Omega0_scf;}
-      else{class_print_species("Scalar Field",scf);
-      budget_other+=pba->Omega0_scf;}
+        class_print_species("Scalar Field + DA Dark Radiation",scf);
+        budget_other+=pba->Omega0_scf;
+      }
+      else{
+        class_print_species("Scalar Field",scf);
+        budget_other+=pba->Omega0_scf;
+      }
     }
     if (pba->has_curvature == _TRUE_) {
       class_print_species("Spatial Curvature",k);
