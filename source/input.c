@@ -2905,7 +2905,7 @@ int input_read_parameters_species(struct file_content * pfc,
                errmsg);
     if (flag_ede == _TRUE_) {
       pba->Omega0_da_dr = param_ede;
-      Omega_tot += pba->Omega0_da_dr;
+      // Omega_tot += pba->Omega0_da_dr;
     }
   }
   /* Step 2 */
