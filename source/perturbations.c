@@ -239,6 +239,7 @@ int perturbations_output_data(
           class_store_double(dataptr,tk[ppt->index_tp_delta_dcdm],ppt->has_source_delta_dcdm,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_delta_dr],ppt->has_source_delta_dr,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_delta_scf],ppt->has_source_delta_scf,storeidx);
+          class_store_double(dataptr,tk[ppt->index_tp_delta_da_dr],ppt->has_source_delta_da_dr,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_delta_tot],ppt->has_source_delta_tot,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_phi],ppt->has_source_phi,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_psi],ppt->has_source_psi,storeidx);
@@ -267,6 +268,7 @@ int perturbations_output_data(
           class_store_double(dataptr,tk[ppt->index_tp_theta_dcdm],ppt->has_source_theta_dcdm,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_theta_dr],ppt->has_source_theta_dr,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_theta_scf],ppt->has_source_theta_scf,storeidx);
+          class_store_double(dataptr,tk[ppt->index_tp_theta_da_dr],ppt->has_source_theta_da_dr,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_theta_tot],ppt->has_source_theta_tot,storeidx);
 
         }
@@ -331,6 +333,7 @@ int perturbations_output_titles(
       class_store_columntitle(titles,"d_dcdm",pba->has_dcdm);
       class_store_columntitle(titles,"d_dr",pba->has_dr);
       class_store_columntitle(titles,"d_scf",pba->has_scf);
+      class_store_columntitle(titles,"d_da_dr",pba->has_da_dr);
       class_store_columntitle(titles,"d_tot",_TRUE_);
       class_store_columntitle(titles,"phi",ppt->has_source_phi);
       class_store_columntitle(titles,"psi",ppt->has_source_psi);
@@ -359,6 +362,7 @@ int perturbations_output_titles(
       class_store_columntitle(titles,"t_dcdm",pba->has_dcdm);
       class_store_columntitle(titles,"t_dr",pba->has_dr);
       class_store_columntitle(titles,"t_scf",pba->has_scf);
+      class_store_columntitle(titles,"t_da_dr",pba->has_da_dr);
       class_store_columntitle(titles,"t_tot",_TRUE_);
     }
   }
@@ -1044,6 +1048,7 @@ int perturbations_indices(
   ppt->has_source_delta_dcdm = _FALSE_;
   ppt->has_source_delta_fld = _FALSE_;
   ppt->has_source_delta_scf = _FALSE_;
+  ppt->has_source_delta_da_dr = _FALSE_;
   ppt->has_source_delta_dr = _FALSE_;
   ppt->has_source_delta_ur = _FALSE_;
   ppt->has_source_delta_idr = _FALSE_;
@@ -1059,6 +1064,7 @@ int perturbations_indices(
   ppt->has_source_theta_dcdm = _FALSE_;
   ppt->has_source_theta_fld = _FALSE_;
   ppt->has_source_theta_scf = _FALSE_;
+  ppt->has_source_theta_da_dr = _FALSE_;
   ppt->has_source_theta_dr = _FALSE_;
   ppt->has_source_theta_ur = _FALSE_;
   ppt->has_source_theta_idr = _FALSE_;
@@ -1151,6 +1157,8 @@ int perturbations_indices(
           ppt->has_source_delta_fld = _TRUE_;
         if (pba->has_scf == _TRUE_)
           ppt->has_source_delta_scf = _TRUE_;
+        if (pba->has_da_dr == _TRUE_)
+          ppt->has_source_delta_da_dr = _TRUE_; 
         if (pba->has_ur == _TRUE_)
           ppt->has_source_delta_ur = _TRUE_;
         if (pba->has_idr == _TRUE_)
@@ -1257,6 +1265,7 @@ int perturbations_indices(
       class_define_index(ppt->index_tp_delta_dcdm, ppt->has_source_delta_dcdm,index_type,1);
       class_define_index(ppt->index_tp_delta_fld,  ppt->has_source_delta_fld, index_type,1);
       class_define_index(ppt->index_tp_delta_scf,  ppt->has_source_delta_scf, index_type,1);
+      class_define_index(ppt->index_tp_delta_da_dr,ppt->has_source_delta_da_dr,index_type,1);
       class_define_index(ppt->index_tp_delta_dr,   ppt->has_source_delta_dr,  index_type,1);
       class_define_index(ppt->index_tp_delta_ur,   ppt->has_source_delta_ur,  index_type,1);
       class_define_index(ppt->index_tp_delta_idr,  ppt->has_source_delta_idr, index_type,1);
@@ -1271,6 +1280,8 @@ int perturbations_indices(
       class_define_index(ppt->index_tp_theta_dcdm, ppt->has_source_theta_dcdm,index_type,1);
       class_define_index(ppt->index_tp_theta_fld,  ppt->has_source_theta_fld, index_type,1);
       class_define_index(ppt->index_tp_theta_scf,  ppt->has_source_theta_scf, index_type,1);
+      class_define_index(ppt->index_tp_theta_da_dr,ppt->has_source_theta_da_dr,index_type,1);
+      class_define_index(ppt->index_tp_theta_da_dr,  ppt->has_source_theta_da_dr, index_type,1);
       class_define_index(ppt->index_tp_theta_dr,   ppt->has_source_theta_dr,  index_type,1);
       class_define_index(ppt->index_tp_theta_ur,   ppt->has_source_theta_ur,  index_type,1);
       class_define_index(ppt->index_tp_theta_idr,  ppt->has_source_theta_idr, index_type,1);
@@ -3171,6 +3182,9 @@ int perturbations_prepare_k_output(struct background * pba,
       /* Scalar field scf */
       class_store_columntitle(ppt->scalar_titles, "delta_scf", pba->has_scf);
       class_store_columntitle(ppt->scalar_titles, "theta_scf", pba->has_scf);
+      /* DE dissipative axion dark radiation */
+      class_store_columntitle(ppt->scalar_titles, "delta_da_dr", pba->has_da_dr);
+      class_store_columntitle(ppt->scalar_titles, "theta_da_dr", pba->has_da_dr);
       /** Fluid */
       class_store_columntitle(ppt->scalar_titles, "delta_rho_fld", pba->has_fld);
       class_store_columntitle(ppt->scalar_titles, "rho_plus_p_theta_fld", pba->has_fld);
@@ -3766,6 +3780,11 @@ int perturbations_vector_init(
     class_define_index(ppv->index_pt_phi_scf,pba->has_scf,index_pt,1); /* scalar field density */
     class_define_index(ppv->index_pt_phi_prime_scf,pba->has_scf,index_pt,1); /* scalar field velocity */
 
+     /* EDE dark radiation da_dr */
+
+    class_define_index(ppv->index_pt_delta_da_dr,pba->has_da_dr,index_pt,1); /* da_dr density */
+    class_define_index(ppv->index_pt_theta_da_dr,pba->has_da_dr,index_pt,1); /* da_dr velocity */
+
     /* perturbed recombination: the indices are defined once tca is off. */
     if ( (ppt->has_perturbed_recombination == _TRUE_) && (ppw->approx[ppw->index_ap_tca] == (int)tca_off) ){
       class_define_index(ppv->index_pt_perturbed_recombination_delta_temp,_TRUE_,index_pt,1);
@@ -4237,6 +4256,17 @@ int perturbations_vector_init(
 
         ppv->y[ppv->index_pt_phi_prime_scf] =
           ppw->pv->y[ppw->pv->index_pt_phi_prime_scf];
+
+          /* DE dissipative axion dark radiation */
+        if (pba->has_da_dr == _TRUE_) {
+
+          ppv->y[ppv->index_pt_delta_da_dr] =
+            ppw->pv->y[ppw->pv->index_pt_delta_da_dr];
+
+          ppv->y[ppv->index_pt_theta_da_dr] =
+            ppw->pv->y[ppw->pv->index_pt_theta_da_dr];
+        }
+
       }
 
       if (ppt->gauge == synchronous)
@@ -5156,6 +5186,11 @@ int perturbations_initial_conditions(struct precision * ppr,
       rho_nu += ppw->pvecback[pba->index_bg_rho_dr];
     }
 
+    if (pba->has_da_dr == _TRUE_) {
+      rho_r += ppw->pvecback[pba->index_bg_rho_da_dr];
+      rho_nu += ppw->pvecback[pba->index_bg_rho_da_dr];
+    }
+
     if (pba->has_ur == _TRUE_) {
       rho_r += ppw->pvecback[pba->index_bg_rho_ur];
       rho_nu += ppw->pvecback[pba->index_bg_rho_ur];
@@ -5314,6 +5349,17 @@ int perturbations_initial_conditions(struct precision * ppr,
 
         if (pba->has_dr == _TRUE_) delta_dr = delta_ur;
       }
+
+            /* EDE dissipative axion dark radiation */
+      if (pba->has_da_dr == _TRUE_) {
+        ppw->pv->y[ppw->pv->index_pt_delta_da_dr] = ppw->pv->y[ppw->pv->index_pt_delta_g]; /* da_dr density */
+        ppw->pv->y[ppw->pv->index_pt_theta_da_dr] = theta_ur;
+        // TK ?????????? what should the initial velocity perturbation of da_dr be?
+        // Check and base off of fluid initial conditions / massless neutrinos ?
+
+      }
+
+
 
       /* synchronous metric perturbation eta */
       //eta = ppr->curvature_ini * (1.-ktau_two/12./(15.+4.*fracnu)*(5.+4.*fracnu - (16.*fracnu*fracnu+280.*fracnu+325)/10./(2.*fracnu+15.)*tau*om)) /  s2_squared;
@@ -5559,6 +5605,14 @@ int perturbations_initial_conditions(struct precision * ppr,
            -a*a* dV_scf(pba,ppw->pvecback[pba->index_bg_phi_scf])*alpha
            +ppw->pvecback[pba->index_bg_phi_prime_scf]*alpha_prime);
       }
+
+       /* DE dissipative axion dark radiation */
+      if (pba->has_da_dr == _TRUE_){
+        ppw->pv->y[ppw->pv->index_pt_delta_da_dr] -= 4.*a_prime_over_a*alpha;
+        ppw->pv->y[ppw->pv->index_pt_theta_da_dr] = k*k*alpha;
+      }
+
+
 
       if ((pba->has_ur == _TRUE_) || (pba->has_ncdm == _TRUE_) || (pba->has_dr == _TRUE_)  || (pba->has_idr == _TRUE_)) {
 
@@ -6878,6 +6932,14 @@ int perturbations_total_stress_energy(
 
     }
 
+     /* EDE dissipative axion dark radiation */
+    if (pba->has_da_dr == _TRUE_) {
+      ppw->delta_rho = ppw->delta_rho + ppw->pvecback[pba->index_bg_rho_da_dr]*y[ppw->pv->index_pt_delta_da_dr];
+      ppw->rho_plus_p_theta = ppw->rho_plus_p_theta + 4./3.*ppw->pvecback[pba->index_bg_rho_da_dr]*y[ppw->pv->index_pt_theta_da_dr];
+      ppw->delta_p += 1./3.*ppw->pvecback[pba->index_bg_rho_da_dr]*y[ppw->pv->index_pt_delta_da_dr];
+      ppw->rho_plus_p_tot += 4./3. * ppw->pvecback[pba->index_bg_rho_da_dr];
+    }
+
     /* add your extra species here */
 
     /* fluid contribution */
@@ -7513,6 +7575,14 @@ int perturbations_sources(
       _set_source_(ppt->index_tp_delta_scf) = delta_rho_scf/pvecback[pba->index_bg_rho_scf];
     }
 
+    /* delta_da_dr */
+    if (ppt->has_source_delta_da_dr == _TRUE_)  {
+      _set_source_(ppt->index_tp_delta_da_dr) = y[ppw->pv->index_pt_delta_da_dr]
+        + 4.*a_prime_over_a*theta_over_k2; // N-body gauge correction
+    }
+
+
+
     /* delta_dr */
     if (ppt->has_source_delta_dr == _TRUE_) {
       f_dr = pow(a2/pba->H0,2)*pvecback[pba->index_bg_rho_dr];
@@ -7627,6 +7697,12 @@ int perturbations_sources(
         k*k/a2*ppw->pvecback[pba->index_bg_phi_prime_scf]*y[ppw->pv->index_pt_phi_scf];
 
       _set_source_(ppt->index_tp_theta_scf) = rho_plus_p_theta_scf/(pvecback[pba->index_bg_rho_scf]+pvecback[pba->index_bg_p_scf])
+        + theta_shift; // N-body gauge correction
+    }
+
+     /* theta_da_dr */
+    if (ppt->has_source_theta_da_dr == _TRUE_) {
+      _set_source_(ppt->index_tp_theta_da_dr) = y[ppw->pv->index_pt_theta_da_dr]
         + theta_shift; // N-body gauge correction
     }
 
@@ -7765,6 +7841,7 @@ int perturbations_print_variables(double tau,
   double delta_idr=0., theta_idr=0., shear_idr=0.;
   double delta_rho_scf=0., rho_plus_p_theta_scf=0.;
   double delta_scf=0., theta_scf=0.;
+  double delta_da_dr=0., theta_da_dr=0.;
   /** - ncdm sector begins */
   int n_ncdm;
   double *delta_ncdm=NULL, *theta_ncdm=NULL, *shear_ncdm=NULL, *delta_p_over_delta_rho_ncdm=NULL;
@@ -8057,6 +8134,14 @@ int perturbations_print_variables(double tau,
 
     }
 
+    /* EDE dissipative dark radiation */
+    if (pba->has_da_dr == _TRUE_) {
+      delta_da_dr = y[ppw->pv->index_pt_delta_da_dr];
+      theta_da_dr = y[ppw->pv->index_pt_theta_da_dr];
+    }
+
+
+
     /* converting synchronous variables to newtonian ones */
     if (ppt->gauge == synchronous) {
 
@@ -8108,6 +8193,11 @@ int perturbations_print_variables(double tau,
       if (pba->has_scf == _TRUE_) {
         delta_scf += alpha*(-3.0*H*(1.0+pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf]));
         theta_scf += k*k*alpha;
+      }
+
+      if (pba->has_da_dr == _TRUE_) {
+        delta_da_dr -= 4. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
+        theta_da_dr += k*k*alpha;
       }
 
     }
@@ -8179,6 +8269,9 @@ int perturbations_print_variables(double tau,
     /* Scalar field scf*/
     class_store_double(dataptr, delta_scf, pba->has_scf, storeidx);
     class_store_double(dataptr, theta_scf, pba->has_scf, storeidx);
+    /* DE dissipative axion dark radiation */
+    class_store_double(dataptr, delta_da_dr, pba->has_da_dr, storeidx);
+    class_store_double(dataptr, theta_da_dr, pba->has_da_dr, storeidx);
     /** Fluid */
     class_store_double(dataptr, ppw->delta_rho_fld, pba->has_fld, storeidx);
     class_store_double(dataptr, ppw->rho_plus_p_theta_fld, pba->has_fld, storeidx);
@@ -8901,6 +8994,44 @@ int perturbations_derivs(double tau,
         - (k2 + a2*pvecback[pba->index_bg_ddV_scf])*y[pv->index_pt_phi_scf]; //checked
 
     }
+
+
+    /** - ---> EDE dissipative axion dark radiation (da_dr) */
+
+    if (pba->has_da_dr == _TRUE_) {
+
+      /** - -----> additions to perturbed KG equation */
+      dy[pv->index_pt_phi_prime_scf] += - pvecback[pba->index_bg_da_friction]*a*y[pv->index_pt_phi_prime_scf];
+
+      /** - -----> da_dr density */
+      dy[pv->index_pt_delta_da_dr] =
+        // standard term
+        -4./3.*(y[pv->index_pt_theta_da_dr] + metric_continuity)
+        // non-standard term due to interaction with scf
+        - pvecback[pba->index_bg_da_friction]*pow(pvecback[pba->index_bg_phi_prime_scf],2)/3./a/pvecback[pba->index_bg_rho_da_dr] * y[pv->index_pt_delta_da_dr]
+        + 2.*pvecback[pba->index_bg_da_friction]*pvecback[pba->index_bg_phi_prime_scf]/3./a/pvecback[pba->index_bg_rho_da_dr] * y[pv->index_pt_phi_prime_scf];
+
+      /** - -----> da_dr velocity */
+      dy[pv->index_pt_theta_da_dr] =
+        // standard term
+        k2*y[pv->index_pt_delta_da_dr]/4. + metric_euler
+        // non-standard term due to scf interaction
+        - pvecback[pba->index_bg_da_friction]/a/pvecback[pba->index_bg_rho_da_dr]
+          *( pow(pvecback[pba->index_bg_phi_prime_scf],2)*y[pv->index_pt_theta_da_dr]/3. + k2*pvecback[pba->index_bg_phi_prime_scf]*y[pv->index_pt_phi_scf]/4. );
+
+      // /** Additional terms if friction is temperature-dependent */
+      // if (pba->scf_da_friction == temp_dep) {
+      //   dy[pv->index_pt_delta_da_dr] += pvecback[pba->index_bg_da_friction]*pow(pvecback[pba->index_bg_phi_prime_scf],2)/4./a/pvecback[pba->index_bg_rho_da_dr] * y[pv->index_pt_delta_da_dr];
+      //   dy[pv->index_pt_phi_prime_scf] += -3./4. * pvecback[pba->index_bg_da_friction]*a*pvecback[pba->index_bg_phi_prime_scf]*y[pv->index_pt_delta_da_dr];
+      // }
+
+    }
+
+
+
+
+
+
     /** - ---> interacting dark radiation */
     if (pba->has_idr == _TRUE_){
 
