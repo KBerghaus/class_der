@@ -3469,6 +3469,18 @@ int input_read_parameters_species(struct file_content * pfc,
                  errmsg);
       if (flag1 == _TRUE_){
         pba->scf_Y_da = param1;
+         /* Check if scalar field is overdamped  */
+         class_test(pba->scf_Y_da < 1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069 || 0,
+                  errmsg,
+                  "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
+                  pba->scf_Y_da,1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069);
+          /* Check if scalar field is overdamped  */        
+         class_test(pba->scf_Y_da > (1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000 || 0,
+                  errmsg,
+                  "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
+                  pba->scf_Y_da,(1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000);      
+
+
       }
       else {
         /* Check if we're trying to shoot for scf_Y_da before complaining that no scf_Y_da is passed */
