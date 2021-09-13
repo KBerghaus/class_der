@@ -43,13 +43,13 @@
  */
 
 int perturbations_sources_at_tau(
-                           struct perturbations * ppt,
-                           int index_md,
-                           int index_ic,
-                           int index_tp,
-                           double tau,
-                           double * psource
-                           ) {
+                                 struct perturbations * ppt,
+                                 int index_md,
+                                 int index_ic,
+                                 int index_tp,
+                                 double tau,
+                                 double * psource
+                                 ) {
 
   /** Summary: */
 
@@ -119,13 +119,13 @@ int perturbations_sources_at_tau(
  */
 
 int perturbations_output_data(
-                        struct background * pba,
-                        struct perturbations * ppt,
-                        enum file_format output_format,
-                        double z,
-                        int number_of_titles,
-                        double *data
-                        ) {
+                              struct background * pba,
+                              struct perturbations * ppt,
+                              enum file_format output_format,
+                              double z,
+                              int number_of_titles,
+                              double *data
+                              ) {
 
   int n_ncdm;
   double k, k_over_h, k2;
@@ -188,11 +188,11 @@ int perturbations_output_data(
       for (index_tp=0; index_tp<ppt->tp_size[index_md]; index_tp++) {
         for (index_ic=0; index_ic<ppt->ic_size[index_md]; index_ic++) {
           class_call(perturbations_sources_at_tau(ppt,
-                                            index_md,
-                                            index_ic,
-                                            index_tp,
-                                            tau,
-                                            pvecsources),
+                                                  index_md,
+                                                  index_ic,
+                                                  index_tp,
+                                                  tau,
+                                                  pvecsources),
                      ppt->error_message,
                      ppt->error_message);
 
@@ -306,11 +306,11 @@ int perturbations_output_data(
  */
 
 int perturbations_output_titles(
-                             struct background *pba,
-                             struct perturbations *ppt,
-                             enum file_format output_format,
-                             char titles[_MAXTITLESTRINGLENGTH_]
-                             ){
+                                struct background *pba,
+                                struct perturbations *ppt,
+                                enum file_format output_format,
+                                char titles[_MAXTITLESTRINGLENGTH_]
+                                ){
   int n_ncdm;
   char tmp[40];
 
@@ -395,11 +395,11 @@ int perturbations_output_titles(
  */
 
 int perturbations_output_firstline_and_ic_suffix(
-                                    struct perturbations *ppt,
-                                    int index_ic,
-                                    char first_line[_LINE_LENGTH_MAX_],
-                                    FileName ic_suffix
-                                    ){
+                                                 struct perturbations *ppt,
+                                                 int index_ic,
+                                                 char first_line[_LINE_LENGTH_MAX_],
+                                                 FileName ic_suffix
+                                                 ){
 
   first_line[0]='\0';
   ic_suffix[0]='\0';
@@ -455,11 +455,11 @@ int perturbations_output_firstline_and_ic_suffix(
  */
 
 int perturbations_init(
-                 struct precision * ppr,
-                 struct background * pba,
-                 struct thermodynamics * pth,
-                 struct perturbations * ppt
-                 ) {
+                       struct precision * ppr,
+                       struct background * pba,
+                       struct thermodynamics * pth,
+                       struct perturbations * ppt
+                       ) {
 
   /** Summary: */
 
@@ -641,9 +641,9 @@ int perturbations_init(
   /** - initialize all indices and lists in perturbations structure using perturbations_indices() */
 
   class_call(perturbations_indices(ppr,
-                             pba,
-                             pth,
-                             ppt),
+                                   pba,
+                                   pth,
+                                   ppt),
              ppt->error_message,
              ppt->error_message);
 
@@ -670,9 +670,9 @@ int perturbations_init(
       perturbations_timesampling_for_sources() */
 
   class_call(perturbations_timesampling_for_sources(ppr,
-                                              pba,
-                                              pth,
-                                              ppt),
+                                                    pba,
+                                                    pth,
+                                                    ppt),
              ppt->error_message,
              ppt->error_message);
 
@@ -722,11 +722,11 @@ int perturbations_init(
       /** - --> (b) initialize indices of vectors of perturbations with perturbations_indices_of_current_vectors() */
 
       class_call_parallel(perturbations_workspace_init(ppr,
-                                                 pba,
-                                                 pth,
-                                                 ppt,
-                                                 index_md,
-                                                 pppw[thread]),
+                                                       pba,
+                                                       pth,
+                                                       ppt,
+                                                       index_md,
+                                                       pppw[thread]),
                           ppt->error_message,
                           ppt->error_message);
 
@@ -775,13 +775,13 @@ int perturbations_init(
 #endif
 
           class_call_parallel(perturbations_solve(ppr,
-                                            pba,
-                                            pth,
-                                            ppt,
-                                            index_md,
-                                            index_ic,
-                                            index_k,
-                                            pppw[thread]),
+                                                  pba,
+                                                  pth,
+                                                  ppt,
+                                                  index_md,
+                                                  index_ic,
+                                                  index_k,
+                                                  pppw[thread]),
                               ppt->error_message,
                               ppt->error_message);
 
@@ -879,6 +879,21 @@ int perturbations_init(
 }
 
 /**
+ * Free all memory space allocated by input.
+ *
+ * Called by perturbations_free(), during shooting and if shooting failed
+ *
+ * @param ppt Input: perturbation structure with input pointers to be freed
+ * @return the error status
+ */
+
+int perturbations_free_input(struct perturbations* ppt) {
+  free(ppt->alpha_idm_dr);
+  free(ppt->beta_idr);
+  return _SUCCESS_;
+}
+
+/**
  * Free all memory space allocated by perturbations_init().
  *
  * To be called at the end of each run, only when no further calls to
@@ -889,11 +904,13 @@ int perturbations_init(
  */
 
 int perturbations_free(
-                 struct perturbations * ppt
-                 ) {
+                       struct perturbations * ppt
+                       ) {
 
   int index_md,index_ic,index_tp;
   int filenum;
+
+  perturbations_free_input(ppt);
 
   if (ppt->has_perturbations == _TRUE_) {
 
@@ -938,12 +955,6 @@ int perturbations_free(
     free(ppt->late_sources);
     free(ppt->ddlate_sources);
 
-    if (ppt->alpha_idm_dr != NULL)
-      free(ppt->alpha_idm_dr);
-
-    if (ppt->beta_idr != NULL)
-      free(ppt->beta_idr);
-
     /** Stuff related to perturbations output: */
 
     /** - Free non-NULL pointers */
@@ -976,11 +987,11 @@ int perturbations_free(
  */
 
 int perturbations_indices(
-                    struct precision * ppr,
-                    struct background * pba,
-                    struct thermodynamics * pth,
-                    struct perturbations * ppt
-                    ) {
+                          struct precision * ppr,
+                          struct background * pba,
+                          struct thermodynamics * pth,
+                          struct perturbations * ppt
+                          ) {
 
   /** Summary: */
 
@@ -1114,9 +1125,9 @@ int perturbations_indices(
   /** - define k values with perturbations_get_k_list() */
 
   class_call(perturbations_get_k_list(ppr,
-                                pba,
-                                pth,
-                                ppt),
+                                      pba,
+                                      pth,
+                                      ppt),
              ppt->error_message,
              ppt->error_message);
 
@@ -1411,11 +1422,11 @@ int perturbations_indices(
  */
 
 int perturbations_timesampling_for_sources(
-                                     struct precision * ppr,
-                                     struct background * pba,
-                                     struct thermodynamics * pth,
-                                     struct perturbations * ppt
-                                     ) {
+                                           struct precision * ppr,
+                                           struct background * pba,
+                                           struct thermodynamics * pth,
+                                           struct perturbations * ppt
+                                           ) {
 
   /** Summary: */
 
@@ -1851,11 +1862,11 @@ int perturbations_timesampling_for_sources(
  */
 
 int perturbations_get_k_list(
-                       struct precision * ppr,
-                       struct background * pba,
-                       struct thermodynamics * pth,
-                       struct perturbations * ppt
-                       ) {
+                             struct precision * ppr,
+                             struct background * pba,
+                             struct thermodynamics * pth,
+                             struct perturbations * ppt
+                             ) {
   int index_k, index_k_output, index_mode;
   double k,k_min=0.,k_rec,step,tau1;
   double * k_max_cmb;
@@ -2491,13 +2502,13 @@ int perturbations_get_k_list(
  */
 
 int perturbations_workspace_init(
-                           struct precision * ppr,
-                           struct background * pba,
-                           struct thermodynamics * pth,
-                           struct perturbations * ppt,
-                           int index_md,
-                           struct perturbations_workspace * ppw
-                           ) {
+                                 struct precision * ppr,
+                                 struct background * pba,
+                                 struct thermodynamics * pth,
+                                 struct perturbations * ppt,
+                                 int index_md,
+                                 struct perturbations_workspace * ppw
+                                 ) {
 
   /** Summary: */
 
@@ -2668,10 +2679,10 @@ int perturbations_workspace_init(
  */
 
 int perturbations_workspace_free (
-                            struct perturbations * ppt,
-                            int index_md,
-                            struct perturbations_workspace * ppw
-                            ) {
+                                  struct perturbations * ppt,
+                                  int index_md,
+                                  struct perturbations_workspace * ppw
+                                  ) {
 
   free(ppw->s_l);
   free(ppw->pvecback);
@@ -2719,15 +2730,15 @@ int perturbations_workspace_free (
  */
 
 int perturbations_solve(
-                  struct precision * ppr,
-                  struct background * pba,
-                  struct thermodynamics * pth,
-                  struct perturbations * ppt,
-                  int index_md,
-                  int index_ic,
-                  int index_k,
-                  struct perturbations_workspace * ppw
-                  ) {
+                        struct precision * ppr,
+                        struct background * pba,
+                        struct thermodynamics * pth,
+                        struct perturbations * ppt,
+                        int index_md,
+                        int index_ic,
+                        int index_k,
+                        struct perturbations_workspace * ppw
+                        ) {
 
   /** Summary: */
 
@@ -2934,16 +2945,16 @@ int perturbations_solve(
   ppw->inter_mode = inter_normal;
 
   class_call(perturbations_find_approximation_number(ppr,
-                                               pba,
-                                               pth,
-                                               ppt,
-                                               index_md,
-                                               k,
-                                               ppw,
-                                               tau,
-                                               ppt->tau_sampling[tau_actual_size-1],
-                                               &interval_number,
-                                               interval_number_of),
+                                                     pba,
+                                                     pth,
+                                                     ppt,
+                                                     index_md,
+                                                     k,
+                                                     ppw,
+                                                     tau,
+                                                     ppt->tau_sampling[tau_actual_size-1],
+                                                     &interval_number,
+                                                     interval_number_of),
              ppt->error_message,
              ppt->error_message);
 
@@ -2955,19 +2966,19 @@ int perturbations_solve(
     class_alloc(interval_approx[index_interval],ppw->ap_size*sizeof(int),ppt->error_message);
 
   class_call(perturbations_find_approximation_switches(ppr,
-                                                 pba,
-                                                 pth,
-                                                 ppt,
-                                                 index_md,
-                                                 k,
-                                                 ppw,
-                                                 tau,
-                                                 ppt->tau_sampling[tau_actual_size-1],
-                                                 ppr->tol_tau_approx,
-                                                 interval_number,
-                                                 interval_number_of,
-                                                 interval_limit,
-                                                 interval_approx),
+                                                       pba,
+                                                       pth,
+                                                       ppt,
+                                                       index_md,
+                                                       k,
+                                                       ppw,
+                                                       tau,
+                                                       ppt->tau_sampling[tau_actual_size-1],
+                                                       ppr->tol_tau_approx,
+                                                       interval_number,
+                                                       interval_number_of,
+                                                       interval_limit,
+                                                       interval_approx),
              ppt->error_message,
              ppt->error_message);
 
@@ -3030,15 +3041,15 @@ int perturbations_solve(
         the new vector of perturbations. */
 
     class_call(perturbations_vector_init(ppr,
-                                   pba,
-                                   pth,
-                                   ppt,
-                                   index_md,
-                                   index_ic,
-                                   k,
-                                   interval_limit[index_interval],
-                                   ppw,
-                                   previous_approx),
+                                         pba,
+                                         pth,
+                                         ppt,
+                                         index_md,
+                                         index_ic,
+                                         k,
+                                         interval_limit[index_interval],
+                                         ppw,
+                                         previous_approx),
                ppt->error_message,
                ppt->error_message);
 
@@ -3115,7 +3126,8 @@ int perturbations_solve(
  */
 
 int perturbations_prepare_k_output(struct background * pba,
-			   struct perturbations * ppt){
+                                   struct perturbations * ppt
+                                   ){
   int n_ncdm;
   char tmp[40];
 
@@ -3252,18 +3264,18 @@ int perturbations_prepare_k_output(struct background * pba,
  */
 
 int perturbations_find_approximation_number(
-                                      struct precision * ppr,
-                                      struct background * pba,
-                                      struct thermodynamics * pth,
-                                      struct perturbations * ppt,
-                                      int index_md,
-                                      double k,
-                                      struct perturbations_workspace * ppw,
-                                      double tau_ini,
-                                      double tau_end,
-                                      int * interval_number,
-                                      int * interval_number_of /* interval_number_of[index_ap] (already allocated) */
-                                      ){
+                                            struct precision * ppr,
+                                            struct background * pba,
+                                            struct thermodynamics * pth,
+                                            struct perturbations * ppt,
+                                            int index_md,
+                                            double k,
+                                            struct perturbations_workspace * ppw,
+                                            double tau_ini,
+                                            double tau_end,
+                                            int * interval_number,
+                                            int * interval_number_of /* interval_number_of[index_ap] (already allocated) */
+                                            ){
 
   /** Summary: */
   /* index running over approximations */
@@ -3281,26 +3293,26 @@ int perturbations_find_approximation_number(
   for (index_ap=0; index_ap<ppw->ap_size; index_ap++) {
 
     class_call(perturbations_approximations(ppr,
-                                      pba,
-                                      pth,
-                                      ppt,
-                                      index_md,
-                                      k,
-                                      tau_ini,
-                                      ppw),
+                                            pba,
+                                            pth,
+                                            ppt,
+                                            index_md,
+                                            k,
+                                            tau_ini,
+                                            ppw),
                ppt->error_message,
                ppt->error_message);
 
     flag_ini = ppw->approx[index_ap];
 
     class_call(perturbations_approximations(ppr,
-                                      pba,
-                                      pth,
-                                      ppt,
-                                      index_md,
-                                      k,
-                                      tau_end,
-                                      ppw),
+                                            pba,
+                                            pth,
+                                            ppt,
+                                            index_md,
+                                            k,
+                                            tau_end,
+                                            ppw),
                ppt->error_message,
                ppt->error_message);
 
@@ -3341,21 +3353,21 @@ int perturbations_find_approximation_number(
  */
 
 int perturbations_find_approximation_switches(
-                                        struct precision * ppr,
-                                        struct background * pba,
-                                        struct thermodynamics * pth,
-                                        struct perturbations * ppt,
-                                        int index_md,
-                                        double k,
-                                        struct perturbations_workspace * ppw,
-                                        double tau_ini,
-                                        double tau_end,
-                                        double precision,
-                                        int interval_number,
-                                        int * interval_number_of,
-                                        double * interval_limit, /* interval_limit[index_interval] (already allocated) */
-                                        int ** interval_approx   /* interval_approx[index_interval][index_ap] (already allocated) */
-                                        ){
+                                              struct precision * ppr,
+                                              struct background * pba,
+                                              struct thermodynamics * pth,
+                                              struct perturbations * ppt,
+                                              int index_md,
+                                              double k,
+                                              struct perturbations_workspace * ppw,
+                                              double tau_ini,
+                                              double tau_end,
+                                              double precision,
+                                              int interval_number,
+                                              int * interval_number_of,
+                                              double * interval_limit, /* interval_limit[index_interval] (already allocated) */
+                                              int ** interval_approx   /* interval_approx[index_interval][index_ap] (already allocated) */
+                                              ){
 
   /** Summary: */
 
@@ -3375,13 +3387,13 @@ int perturbations_find_approximation_switches(
   interval_limit[0]=tau_ini;
 
   class_call(perturbations_approximations(ppr,
-                                    pba,
-                                    pth,
-                                    ppt,
-                                    index_md,
-                                    k,
-                                    tau_ini,
-                                    ppw),
+                                          pba,
+                                          pth,
+                                          ppt,
+                                          index_md,
+                                          k,
+                                          tau_ini,
+                                          ppw),
              ppt->error_message,
              ppt->error_message);
 
@@ -3425,13 +3437,13 @@ int perturbations_find_approximation_switches(
           while (upper_bound - lower_bound > precision) {
 
             class_call(perturbations_approximations(ppr,
-                                              pba,
-                                              pth,
-                                              ppt,
-                                              index_md,
-                                              k,
-                                              mid,
-                                              ppw),
+                                                    pba,
+                                                    pth,
+                                                    ppt,
+                                                    index_md,
+                                                    k,
+                                                    mid,
+                                                    ppw),
                        ppt->error_message,
                        ppt->error_message);
 
@@ -3488,13 +3500,13 @@ int perturbations_find_approximation_switches(
     for (index_switch=1; index_switch<interval_number; index_switch++) {
 
       class_call(perturbations_approximations(ppr,
-                                        pba,
-                                        pth,
-                                        ppt,
-                                        index_md,
-                                        k,
-                                        0.5*(interval_limit[index_switch]+interval_limit[index_switch+1]),
-                                        ppw),
+                                              pba,
+                                              pth,
+                                              ppt,
+                                              index_md,
+                                              k,
+                                              0.5*(interval_limit[index_switch]+interval_limit[index_switch+1]),
+                                              ppw),
 
                  ppt->error_message,
                  ppt->error_message);
@@ -3586,13 +3598,13 @@ int perturbations_find_approximation_switches(
     free(unsorted_tau_switch);
 
     class_call(perturbations_approximations(ppr,
-                                      pba,
-                                      pth,
-                                      ppt,
-                                      index_md,
-                                      k,
-                                      tau_end,
-                                      ppw),
+                                            pba,
+                                            pth,
+                                            ppt,
+                                            index_md,
+                                            k,
+                                            tau_end,
+                                            ppw),
 
                ppt->error_message,
                ppt->error_message);
@@ -3644,17 +3656,17 @@ int perturbations_find_approximation_switches(
  */
 
 int perturbations_vector_init(
-                        struct precision * ppr,
-                        struct background * pba,
-                        struct thermodynamics * pth,
-                        struct perturbations * ppt,
-                        int index_md,
-                        int index_ic,
-                        double k,
-                        double tau,
-                        struct perturbations_workspace * ppw, /* ppw->pv unallocated if pa_old = NULL, allocated and filled otherwise */
-                        int * pa_old
-                        ) {
+                              struct precision * ppr,
+                              struct background * pba,
+                              struct thermodynamics * pth,
+                              struct perturbations * ppt,
+                              int index_md,
+                              int index_ic,
+                              double k,
+                              double tau,
+                              struct perturbations_workspace * ppw, /* ppw->pv unallocated if pa_old = NULL, allocated and filled otherwise */
+                              int * pa_old
+                              ) {
 
   /** Summary: */
 
@@ -4153,13 +4165,13 @@ int perturbations_vector_init(
     /** - --> (c) fill the vector ppw-->pv-->y with appropriate initial conditions */
 
     class_call(perturbations_initial_conditions(ppr,
-                                          pba,
-                                          ppt,
-                                          index_md,
-                                          index_ic,
-                                          k,
-                                          tau,
-                                          ppw),
+                                                pba,
+                                                ppt,
+                                                index_md,
+                                                index_ic,
+                                                k,
+                                                tau,
+                                                ppw),
                ppt->error_message,
                ppt->error_message);
 
@@ -5080,8 +5092,8 @@ int perturbations_vector_init(
  */
 
 int perturbations_vector_free(
-                        struct perturbations_vector * pv
-                        ) {
+                              struct perturbations_vector * pv
+                              ) {
 
   if (pv->l_max_ncdm != NULL) free(pv->l_max_ncdm);
   if (pv->q_size_ncdm != NULL) free(pv->q_size_ncdm);
@@ -5111,14 +5123,14 @@ int perturbations_vector_free(
  */
 
 int perturbations_initial_conditions(struct precision * ppr,
-                               struct background * pba,
-                               struct perturbations * ppt,
-                               int index_md,
-                               int index_ic,
-                               double k,
-                               double tau,
-                               struct perturbations_workspace * ppw
-                               ) {
+                                     struct background * pba,
+                                     struct perturbations * ppt,
+                                     int index_md,
+                                     int index_ic,
+                                     double k,
+                                     double tau,
+                                     struct perturbations_workspace * ppw
+                                     ) {
   /** Summary: */
 
   /** --> Declare local variables */
@@ -5869,15 +5881,15 @@ int perturbations_initial_conditions(struct precision * ppr,
  */
 
 int perturbations_approximations(
-                           struct precision * ppr,
-                           struct background * pba,
-                           struct thermodynamics * pth,
-                           struct perturbations * ppt,
-                           int index_md,
-                           double k,
-                           double tau,
-                           struct perturbations_workspace * ppw
-                           ) {
+                                 struct precision * ppr,
+                                 struct background * pba,
+                                 struct thermodynamics * pth,
+                                 struct perturbations * ppt,
+                                 int index_md,
+                                 double k,
+                                 double tau,
+                                 struct perturbations_workspace * ppw
+                                 ) {
   /** Summary: */
 
   /** - define local variables */
@@ -6130,11 +6142,11 @@ int perturbations_approximations(
  */
 
 int perturbations_timescale(
-                      double tau,
-                      void * parameters_and_workspace,
-                      double * timescale,
-                      ErrorMsg error_message
-                      ) {
+                            double tau,
+                            void * parameters_and_workspace,
+                            double * timescale,
+                            ErrorMsg error_message
+                            ) {
   /** Summary: */
 
   /** - define local variables */
@@ -6300,16 +6312,16 @@ int perturbations_timescale(
  */
 
 int perturbations_einstein(
-                     struct precision * ppr,
-                     struct background * pba,
-                     struct thermodynamics * pth,
-                     struct perturbations * ppt,
-                     int index_md,
-                     double k,
-                     double tau,
-                     double * y,
-                     struct perturbations_workspace * ppw
-                     ) {
+                           struct precision * ppr,
+                           struct background * pba,
+                           struct thermodynamics * pth,
+                           struct perturbations * ppt,
+                           int index_md,
+                           double k,
+                           double tau,
+                           double * y,
+                           struct perturbations_workspace * ppw
+                           ) {
   /** Summary: */
 
   /** - define local variables */
@@ -6516,15 +6528,15 @@ int perturbations_einstein(
 }
 
 int perturbations_total_stress_energy(
-                                struct precision * ppr,
-                                struct background * pba,
-                                struct thermodynamics * pth,
-                                struct perturbations * ppt,
-                                int index_md,
-                                double k,
-                                double * y,
-                                struct perturbations_workspace * ppw
-                                ) {
+                                      struct precision * ppr,
+                                      struct background * pba,
+                                      struct thermodynamics * pth,
+                                      struct perturbations * ppt,
+                                      int index_md,
+                                      double k,
+                                      double * y,
+                                      struct perturbations_workspace * ppw
+                                      ) {
   /** Summary: */
 
   /** - define local variables */
@@ -7189,13 +7201,13 @@ int perturbations_total_stress_energy(
  */
 
 int perturbations_sources(
-                    double tau,
-                    double * y,
-                    double * dy,
-                    int index_tau,
-                    void * parameters_and_workspace,
-                    ErrorMsg error_message
-                    ) {
+                          double tau,
+                          double * y,
+                          double * dy,
+                          int index_tau,
+                          void * parameters_and_workspace,
+                          ErrorMsg error_message
+                          ) {
   /** Summary: */
 
   /** - define local variables */
@@ -7282,14 +7294,14 @@ int perturbations_sources(
     /** - --> compute metric perturbations */
 
     class_call(perturbations_einstein(ppr,
-                                pba,
-                                pth,
-                                ppt,
-                                index_md,
-                                k,
-                                tau,
-                                y,
-                                ppw),
+                                      pba,
+                                      pth,
+                                      ppt,
+                                      index_md,
+                                      k,
+                                      tau,
+                                      y,
+                                      ppw),
                ppt->error_message,
                error_message);
 
@@ -7900,14 +7912,14 @@ int perturbations_print_variables(double tau,
   /** - update metric perturbations in this point */
 
   class_call(perturbations_einstein(ppr,
-                              pba,
-                              pth,
-                              ppt,
-                              index_md,
-                              k,
-                              tau,
-                              y,
-                              ppw),
+                                    pba,
+                                    pth,
+                                    ppt,
+                                    index_md,
+                                    k,
+                                    tau,
+                                    y,
+                                    ppw),
              ppt->error_message,
              error_message);
 
@@ -8433,11 +8445,11 @@ int perturbations_print_variables(double tau,
  */
 
 int perturbations_derivs(double tau,
-                   double * y,
-                   double * dy,
-                   void * parameters_and_workspace,
-                   ErrorMsg error_message
-                   ) {
+                         double * y,
+                         double * dy,
+                         void * parameters_and_workspace,
+                         ErrorMsg error_message
+                         ) {
   /** Summary: */
 
   /** - define local variables */
@@ -8541,14 +8553,14 @@ int perturbations_derivs(double tau,
 
   /** - get metric perturbations with perturbations_einstein() */
   class_call(perturbations_einstein(ppr,
-                              pba,
-                              pth,
-                              ppt,
-                              index_md,
-                              k,
-                              tau,
-                              y,
-                              ppw),
+                                    pba,
+                                    pth,
+                                    ppt,
+                                    index_md,
+                                    k,
+                                    tau,
+                                    y,
+                                    ppw),
              ppt->error_message,
              error_message);
 
@@ -9636,9 +9648,9 @@ int perturbations_derivs(double tau,
  */
 
 int perturbations_tca_slip_and_shear(double * y,
-                               void * parameters_and_workspace,
-                               ErrorMsg error_message
-                               ) {
+                                     void * parameters_and_workspace,
+                                     ErrorMsg error_message
+                                     ) {
   /** Summary: */
 
   /** - define local variables */
@@ -9943,17 +9955,17 @@ int perturbations_tca_slip_and_shear(double * y,
  */
 
 int perturbations_rsa_delta_and_theta(
-                                struct precision * ppr,
-                                struct background * pba,
-                                struct thermodynamics * pth,
-                                struct perturbations * ppt,
-                                double k,
-                                double * y,
-                                double a_prime_over_a,
-                                double * pvecthermo,
-                                struct perturbations_workspace * ppw,
-                                ErrorMsg error_message
-                                ) {
+                                      struct precision * ppr,
+                                      struct background * pba,
+                                      struct thermodynamics * pth,
+                                      struct perturbations * ppt,
+                                      double k,
+                                      double * y,
+                                      double a_prime_over_a,
+                                      double * pvecthermo,
+                                      struct perturbations_workspace * ppw,
+                                      ErrorMsg error_message
+                                      ) {
   /* - define local variables */
 
   double k2;
@@ -10082,17 +10094,17 @@ int perturbations_rsa_delta_and_theta(
  */
 
 int perturbations_rsa_idr_delta_and_theta(
-                                    struct precision * ppr,
-                                    struct background * pba,
-                                    struct thermodynamics * pth,
-                                    struct perturbations * ppt,
-                                    double k,
-                                    double * y,
-                                    double a_prime_over_a,
-                                    double * pvecthermo,
-                                    struct perturbations_workspace * ppw,
-                                    ErrorMsg error_message
-                                    ) {
+                                          struct precision * ppr,
+                                          struct background * pba,
+                                          struct thermodynamics * pth,
+                                          struct perturbations * ppt,
+                                          double k,
+                                          double * y,
+                                          double a_prime_over_a,
+                                          double * pvecthermo,
+                                          struct perturbations_workspace * ppw,
+                                          ErrorMsg error_message
+                                          ) {
   /* - define local variables */
 
   double k2;

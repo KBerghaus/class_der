@@ -710,6 +710,10 @@ extern "C" {
                    struct perturbations * ppt
                    );
 
+  int perturbations_free_input(
+                   struct perturbations * ppt
+                   );
+
   int perturbations_free(
                    struct perturbations * ppt
                    );
