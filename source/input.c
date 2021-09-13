@@ -1349,7 +1349,7 @@ int input_get_guess(double *xguess,
          A better way to do this all would be to remove all scf_Y_da, and base everything
          off of scf_c_n_da and scf_n_da */
          xguess[index_guess] = 0.35*pow(ba.scf_parameters[0],2)/(ba.Omega0_da_dr * ba.H0);
-         dxdy[index_guess] = 1;
+         dxdy[index_guess] = -1.*xguess[index_guess]/(ba.Omega0_da_dr);
     }
   }
 
