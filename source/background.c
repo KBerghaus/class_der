@@ -1953,28 +1953,74 @@ int background_solve(
       z = pba->z_table[index_loga];
       if (fabs(z - 2.) < z2){
         z2 = fabs(z - 2.);
-        if (pba->has_scf) pba->w_scf_2 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf];
+        if (pba->has_scf) {
+          if(pba->has_da_dr) {
+            pba->w_scf_2 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/(pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf]
+             + pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]) + 1/3*pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]/
+             (pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf] + pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]);
+            }
+          else {
+            pba->w_scf_2 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf];
+            }
+        }
         if (pba->has_fld) pba->w_fld_2 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_w_fld];
+      
       }
       if (fabs(z - 1.) < z1){
         z1 = fabs(z - 1.);
-        if (pba->has_scf) pba->w_scf_1 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf];
+        if (pba->has_scf) {
+          if(pba->has_da_dr) {
+            pba->w_scf_1 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/(pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf]
+             + pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]) + 1/3*pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]/
+             (pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf] + pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]);
+            }
+          else {
+            pba->w_scf_1 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf];
+            }
+        }
         if (pba->has_fld) pba->w_fld_1 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_w_fld];
       }
       if (fabs(z - 0.7) < zp7){
         zp7 = fabs(z - 0.7);
-        if (pba->has_scf) pba->w_scf_p7 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf];
-        // printf("---------> found z = %g closer to 0.7 than before, so setting w_scf(0.7) = %g\n",
+        if (pba->has_scf) {
+          if(pba->has_da_dr) {
+            pba->w_scf_p7 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/(pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf]
+             + pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]) + 1/3*pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]/
+             (pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf] + pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]);
+            }
+          else {
+            pba->w_scf_p7 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf];
+            }
+        }
+        //printf("---------> found z = %g closer to 0.7 than before, so setting w_scf(0.7) = %g\n",
                // z, pba->w_scf_p7);
         if (pba->has_fld) pba->w_fld_p7 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_w_fld];
       }
       if (fabs(z - 0.3) < zp3){
         zp3 = fabs(z - 0.3);
-        if (pba->has_scf) pba->w_scf_p3 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf];
+        if (pba->has_scf) {
+          if(pba->has_da_dr) {
+            pba->w_scf_p3 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/(pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf]
+             + pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]) + 1/3*pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]/
+             (pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf] + pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]);
+            }
+          else {
+            pba->w_scf_p3 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf];
+            }
+        }
         if (pba->has_fld) pba->w_fld_p3 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_w_fld];
       }
       if (z == 0.){
-        if (pba->has_scf) pba->w_scf_0 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf];
+        if (pba->has_scf) {
+          if(pba->has_da_dr) {
+            pba->w_scf_0 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/(pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf]
+             + pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]) + 1/3*pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]/
+             (pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf] + pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_da_dr]);
+            }
+          else {
+            pba->w_scf_0 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_p_scf]/pba->background_table[index_loga*pba->bg_size+pba->index_bg_rho_scf];
+            }
+        }
         // printf("---------> Setting w_scf(0) = %g at z = %g \n",
                // pba->w_scf_0, z);
         if (pba->has_fld) pba->w_fld_0 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_w_fld];

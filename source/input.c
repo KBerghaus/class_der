@@ -3045,6 +3045,35 @@ int input_read_parameters_species(struct file_content * pfc,
       }
     }
 
+
+     /** 8.b.5) Which scf potential is wanted? KB: changed order to distinguish between potentials when rejecting input friction */
+    class_call(parser_read_string(pfc,
+                                  "scf_potential",
+                                  &string1,
+                                  &flag1,
+                                  errmsg),
+                errmsg,
+                errmsg);
+    /* Complete set of parameters */
+    if (flag1 == _TRUE_){
+      if( (strstr(string1,"quad") != NULL) || (strstr(string1,"phi2") != NULL) ) {
+        pba->scf_potential = quad;
+        if (input_verbose > 0){
+          printf(" -> using 1/2 m^2 phi^2 scalar field potential with m = %g\n",pba->scf_parameters[0]);
+        }
+      }
+    }
+
+    if (flag1 == _TRUE_){
+      if( (strstr(string1,"lin") != NULL) || (strstr(string1,"phi1") != NULL) ) {
+        pba->scf_potential = lin;
+        if (input_verbose > 0){
+          printf(" -> using C phi scalar field potential with C = %g\n",pba->scf_parameters[0]);
+        }
+      }
+    }
+
+
     /** Check if the parameterisation specified is  dissipative axion DE or original scf of CLASS */
     class_call(parser_read_string(pfc,
                                  "scf_parameterisation",
@@ -3060,6 +3089,32 @@ int input_read_parameters_species(struct file_content * pfc,
                  errmsg);
       if (flag1 == _TRUE_){
         pba->scf_Y_da = param1;
+         if(pba->scf_potential == lin) {
+           /* Check if scalar field is overdamped  */
+         class_test(pba->scf_Y_da < pow(10,(10.5+2*log10(pba->scf_parameters[0]))) && pba->scf_parameters[0] > 2.3*pow(10,-7), 
+                  errmsg,
+                  "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
+                  pba->scf_Y_da, pow(10,(10.5+2*log10(pba->scf_parameters[0]))));
+          /* Check if scalar field is still dynamic  */        
+         class_test(pba->scf_Y_da > pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000 ,
+                  errmsg,
+                  "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
+                  pba->scf_Y_da,pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000);  
+         }    
+         if(pba->scf_potential == quad) {
+           /* Check if scalar field is overdamped  */
+         class_test(pba->scf_Y_da < 1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069 || 0,
+                  errmsg,
+                  "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
+                  pba->scf_Y_da,1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069);
+          /* Check if scalar field is still dynamic  */        
+         class_test(pba->scf_Y_da > (1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000 || 0,
+                  errmsg,
+                  "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
+                  pba->scf_Y_da,(1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000);  
+         }    
+
+
       }
       else {
         /* Check if we're trying to shoot for scf_Y_da before complaining that no scf_Y_da is passed */
@@ -3089,32 +3144,32 @@ int input_read_parameters_species(struct file_content * pfc,
      printf("'scf_lambda' = %e < 3 won't be tracking (for exp quint) unless overwritten by tuning function.",scf_lambda);
     }
 
-    /** 8.b.5) Which scf potential is wanted? */
-    class_call(parser_read_string(pfc,
-                                  "scf_potential",
-                                  &string1,
-                                  &flag1,
-                                  errmsg),
-                errmsg,
-                errmsg);
-    /* Complete set of parameters */
-    if (flag1 == _TRUE_){
-      if( (strstr(string1,"quad") != NULL) || (strstr(string1,"phi2") != NULL) ) {
-        pba->scf_potential = quad;
-        if (input_verbose > 0){
-          printf(" -> using 1/2 m^2 phi^2 scalar field potential with m = %g\n",pba->scf_parameters[0]);
-        }
-      }
-    }
+    // /** 8.b.5) Which scf potential is wanted? */
+    // class_call(parser_read_string(pfc,
+    //                               "scf_potential",
+    //                               &string1,
+    //                               &flag1,
+    //                               errmsg),
+    //             errmsg,
+    //             errmsg);
+    // /* Complete set of parameters */
+    // if (flag1 == _TRUE_){
+    //   if( (strstr(string1,"quad") != NULL) || (strstr(string1,"phi2") != NULL) ) {
+    //     pba->scf_potential = quad;
+    //     if (input_verbose > 0){
+    //       printf(" -> using 1/2 m^2 phi^2 scalar field potential with m = %g\n",pba->scf_parameters[0]);
+    //     }
+    //   }
+    // }
 
-    if (flag1 == _TRUE_){
-      if( (strstr(string1,"lin") != NULL) || (strstr(string1,"phi1") != NULL) ) {
-        pba->scf_potential = lin;
-        if (input_verbose > 0){
-          printf(" -> using C phi scalar field potential with C = %g\n",pba->scf_parameters[0]);
-        }
-      }
-    }
+    // if (flag1 == _TRUE_){
+    //   if( (strstr(string1,"lin") != NULL) || (strstr(string1,"phi1") != NULL) ) {
+    //     pba->scf_potential = lin;
+    //     if (input_verbose > 0){
+    //       printf(" -> using C phi scalar field potential with C = %g\n",pba->scf_parameters[0]);
+    //     }
+    //   }
+    // }
 
 
     /* Complete set of parameters */
