@@ -2047,7 +2047,7 @@ int background_solve(
             }
         }
         if (pba->has_fld) pba->w_fld_2 = pba->background_table[index_loga*pba->bg_size+pba->index_bg_w_fld];
-      
+
       }
       if (fabs(z - 1.) < z1){
         z1 = fabs(z - 1.);
@@ -2425,7 +2425,7 @@ int background_initial_conditions(
       pvecback_integration[pba->index_bi_phi_prime_scf] = 2.*a*sqrt(V_scf(pba,pvecback_integration[pba->index_bi_phi_scf]))*pba->phi_prime_ini_scf;
     }
     else {
-      printf("Not using attractor initial conditions\n");
+      if (pba->background_verbose > 0) printf("Not using attractor initial conditions\n");
       /** - --> If no attractor initial conditions are assigned, gets the provided ones. */
       pvecback_integration[pba->index_bi_phi_scf] = pba->scf_parameters[pba->scf_parameters_size-2];
       pvecback_integration[pba->index_bi_phi_prime_scf] = pba->scf_parameters[pba->scf_parameters_size-1];

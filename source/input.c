@@ -3500,28 +3500,28 @@ int input_read_parameters_species(struct file_content * pfc,
         pba->scf_Y_da = param1;
          if(pba->scf_potential == lin) {
            /* Check if scalar field is overdamped  */
-         class_test(pba->scf_Y_da < pow(10,(10.5+2*log10(pba->scf_parameters[0]))) && pba->scf_parameters[0] > 2.3*pow(10,-7), 
+         class_test(pba->scf_Y_da < pow(10,(10.5+2*log10(pba->scf_parameters[0]))) && pba->scf_parameters[0] > 2.3*pow(10,-7),
                   errmsg,
                   "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
                   pba->scf_Y_da, pow(10,(10.5+2*log10(pba->scf_parameters[0]))));
-          /* Check if scalar field is still dynamic  */        
+          /* Check if scalar field is still dynamic  */
          class_test(pba->scf_Y_da > pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000 ,
                   errmsg,
                   "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
-                  pba->scf_Y_da,pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000);  
-         }    
+                  pba->scf_Y_da,pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000);
+         }
          if(pba->scf_potential == quad) {
            /* Check if scalar field is overdamped  */
          class_test(pba->scf_Y_da < 1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069 || 0,
                   errmsg,
                   "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
                   pba->scf_Y_da,1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069);
-          /* Check if scalar field is still dynamic  */        
+          /* Check if scalar field is still dynamic  */
          class_test(pba->scf_Y_da > (1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000 || 0,
                   errmsg,
                   "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
-                  pba->scf_Y_da,(1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000);  
-         }    
+                  pba->scf_Y_da,(1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000);
+         }
 
 
       }
@@ -3535,7 +3535,7 @@ int input_read_parameters_species(struct file_content * pfc,
                   errmsg,
                   "You have asked for dissipative axion scalar field, but not specified the friction through which it sources dark radiation.\nThis code is currently only set up for constant friction.\nSpecify friction with scf_Y_da in your .ini file.\n");
       }
-      printf("----> Setting scf_Y_da = %g", pba->scf_Y_da);
+      if (input_verbose > 0) printf("----> Setting scf_Y_da = %g \n", pba->scf_Y_da);
     }
     /** 8.b.3) SCF tuning parameter */
     /* Read */
