@@ -3496,34 +3496,32 @@ int input_read_parameters_species(struct file_content * pfc,
       class_call(parser_read_double(pfc,"scf_Y_da",&param1,&flag1,errmsg),
                  errmsg,
                  errmsg);
-      if (flag1 == _TRUE_){
+      if (pba->scf_parameterisation == da_de){
         pba->scf_Y_da = param1;
-         if(pba->scf_potential == lin) {
-           /* Check if scalar field is overdamped  */
-         class_test(pba->scf_Y_da < pow(10,(10.5+2*log10(pba->scf_parameters[0]))) && pba->scf_parameters[0] > 2.3*pow(10,-7),
-                  errmsg,
-                  "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
-                  pba->scf_Y_da, pow(10,(10.5+2*log10(pba->scf_parameters[0]))));
-          /* Check if scalar field is still dynamic  */
-         class_test(pba->scf_Y_da > pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000 ,
-                  errmsg,
-                  "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
-                  pba->scf_Y_da,pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000);
-         }
-         if(pba->scf_potential == quad) {
-           /* Check if scalar field is overdamped  */
-         class_test(pba->scf_Y_da < 1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069 || 0,
-                  errmsg,
-                  "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
-                  pba->scf_Y_da,1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069);
-          /* Check if scalar field is still dynamic  */
-         class_test(pba->scf_Y_da > (1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000 || 0,
-                  errmsg,
-                  "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
-                  pba->scf_Y_da,(1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000);
-         }
-
-
+         // if(pba->scf_potential == lin) {
+         //   /* Check if scalar field is overdamped  */
+         // class_test(pba->scf_Y_da < pow(10,(10.5+2*log10(pba->scf_parameters[0]))) && pba->scf_parameters[0] > 2.3*pow(10,-7),
+         //          errmsg,
+         //          "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
+         //          pba->scf_Y_da, pow(10,(10.5+2*log10(pba->scf_parameters[0]))));
+         //  /* Check if scalar field is still dynamic  */
+         // class_test(pba->scf_Y_da > pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000 ,
+         //          errmsg,
+         //          "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
+         //          pba->scf_Y_da,pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000);
+         // }
+         // if(pba->scf_potential == quad) {
+         //   /* Check if scalar field is overdamped  */
+         // class_test(pba->scf_Y_da < 1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069 || 0,
+         //          errmsg,
+         //          "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
+         //          pba->scf_Y_da,1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069);
+         //  /* Check if scalar field is still dynamic  */
+         // class_test(pba->scf_Y_da > (1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000 || 0,
+         //          errmsg,
+         //          "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
+         //          pba->scf_Y_da,(1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000);
+         // }
       }
       else {
         /* Check if we're trying to shoot for scf_Y_da before complaining that no scf_Y_da is passed */

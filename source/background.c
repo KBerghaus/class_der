@@ -1812,6 +1812,33 @@ int background_checks(
                pba->error_message,
                "incorrect transition redshift");
   }
+  /* scalar field, if interacting with dark radiation */
+  if (pba->scf_parameterisation == da_de){
+     if(pba->scf_potential == lin) {
+       /* Check if scalar field is overdamped  */
+     class_test(pba->scf_Y_da < pow(10,(10.5+2*log10(pba->scf_parameters[0]))) && pba->scf_parameters[0] > 2.3*pow(10,-7),
+              pba->error_message,
+              "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
+              pba->scf_Y_da, pow(10,(10.5+2*log10(pba->scf_parameters[0]))));
+      /* Check if scalar field is still dynamic  */
+     class_test(pba->scf_Y_da > pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000 ,
+              pba->error_message,
+              "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
+              pba->scf_Y_da,pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000);
+     }
+     if(pba->scf_potential == quad) {
+       /* Check if scalar field is overdamped  */
+     class_test(pba->scf_Y_da < 1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069 || 0,
+              pba->error_message,
+              "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
+              pba->scf_Y_da,1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069);
+      /* Check if scalar field is still dynamic  */
+     class_test(pba->scf_Y_da > (1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000 || 0,
+              pba->error_message,
+              "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
+              pba->scf_Y_da,(1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000);
+     }
+  }
 
   /** - in verbose mode, send to standard output some additional information on non-obvious background parameters */
   if (pba->background_verbose > 0) {
