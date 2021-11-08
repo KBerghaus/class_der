@@ -1736,15 +1736,15 @@ int background_checks(
   if (pba->scf_parameterisation == da_de){
      if(pba->scf_potential == lin) {
        /* Check if scalar field is overdamped  */
-     class_test(pba->scf_Y_da < pow(10,(10.5+2*log10(pba->scf_parameters[0]))) && pba->scf_parameters[0] > 2.3*pow(10,-7),
+     class_test(pba->scf_Y_da < pow(10,(10.7+2*log10(pba->scf_parameters[0]))),
               pba->error_message,
               "Your friction  Y = %e  is so small that the scalar field decays too rapidly to be dark energy. Increase friction to Y = %e. \n",
-              pba->scf_Y_da, pow(10,(10.5+2*log10(pba->scf_parameters[0]))));
+              pba->scf_Y_da, pow(10,(10.7+2*log10(pba->scf_parameters[0]))));
       /* Check if scalar field is still dynamic  */
-     class_test(pba->scf_Y_da > pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000 ,
+     class_test(pba->scf_Y_da > pow(10,(10.7+2*log10(pba->scf_parameters[0])))*10000 ,
               pba->error_message,
               "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
-              pba->scf_Y_da,pow(10,(10.5+2*log10(pba->scf_parameters[0])))*10000);
+              pba->scf_Y_da,pow(10,(10.7+2*log10(pba->scf_parameters[0])))*10000);
      }
      if(pba->scf_potential == quad) {
        /* Check if scalar field is overdamped  */
