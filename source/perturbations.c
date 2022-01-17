@@ -1169,7 +1169,7 @@ int perturbations_indices(
         if (pba->has_scf == _TRUE_)
           ppt->has_source_delta_scf = _TRUE_;
         if (pba->has_da_dr == _TRUE_)
-          ppt->has_source_delta_da_dr = _TRUE_; 
+          ppt->has_source_delta_da_dr = _TRUE_;
         if (pba->has_ur == _TRUE_)
           ppt->has_source_delta_ur = _TRUE_;
         if (pba->has_idr == _TRUE_)
@@ -9029,7 +9029,7 @@ int perturbations_derivs(double tau,
         k2*y[pv->index_pt_delta_da_dr]/4. + metric_euler
         // non-standard term due to scf interaction
         - pvecback[pba->index_bg_da_friction]/a/pvecback[pba->index_bg_rho_da_dr]
-          *( pow(pvecback[pba->index_bg_phi_prime_scf],2)*y[pv->index_pt_theta_da_dr]/3. + k2*pvecback[pba->index_bg_phi_prime_scf]*y[pv->index_pt_phi_scf]/4. );
+          *( pow(pvecback[pba->index_bg_phi_prime_scf],2)*y[pv->index_pt_theta_da_dr]/3. - k2*pvecback[pba->index_bg_phi_prime_scf]*y[pv->index_pt_phi_scf]/4. );
 
       // /** Additional terms if friction is temperature-dependent */
       // if (pba->scf_da_friction == temp_dep) {

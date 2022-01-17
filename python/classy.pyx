@@ -1844,6 +1844,8 @@ cdef class Class:
                 value = self.ba.w_fld_2
             elif name == 'Omega0_scf_ke':
                 value = self.ba.Omega0_scf_ke
+            elif name == 'Omega0_da_dr':
+                value = self.ba.Omega0_da_dr
             elif name == 'w_scf_0':
                 value = self.ba.w_scf_0
             elif name == 'w_scf_p3':
