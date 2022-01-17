@@ -110,6 +110,7 @@ cdef extern from "class.h":
         double w_fld_1
         double w_fld_2
         double Omega0_scf_ke
+        double Omega0_da_dr
         double w_scf_0
         double w_scf_p3
         double w_scf_p7
