@@ -3122,11 +3122,14 @@ int input_read_parameters_species(struct file_content * pfc,
         if (flag1 == _TRUE_){
           pba->scf_Y_da = param1;
           pba->scf_da_friction = constant;
+          if (input_verbose > 0) printf("----> Setting scf_Y_da = %g \n", pba->scf_Y_da);
         }
         else if (flag2 == _TRUE_){
           pba->scf_c_n_da = param2;
           pba->scf_da_friction = temp_dep;
           if (flag3 == _TRUE_) pba->scf_n_da = param3;
+          if (input_verbose > 0) printf("----> Setting scf_c_n_da = %g \n", pba->scf_c_n_da);
+          if (input_verbose > 0) printf("----> Setting scf_n_da = %g \n", pba->scf_n_da);
         }
          // if(pba->scf_potential == lin) {
          //   /* Check if scalar field is overdamped  */
@@ -5649,6 +5652,10 @@ int input_default_params(struct background *pba,
   pba->Omega_EDE = 0.;
    /** 9.a.2.3) 'da DE' case */
   pba->Omega0_da_dr = 0.;
+  pba->scf_Y_da = 0.;
+  pba->scf_c_n_da = 0.;
+  pba-> scf_n_da = 0.;
+
   /** 9.a.3) extra fld properties for output */
   pba->w_fld_0 = -1.;
   pba->w_fld_p3 = -1.;
