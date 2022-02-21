@@ -488,7 +488,6 @@ int background_functions(
     rho_m += pvecback[pba->index_bg_rho_scf] - 3.* pvecback[pba->index_bg_p_scf]; //the rest contributes matter
     //printf(" a= %e, Omega_scf = %f, \n ",a, pvecback[pba->index_bg_rho_scf]/rho_tot );
     if (pba->scf_parameterisation == da_de){
-      pvecback[pba->index_bg_da_friction] = pba->scf_Y_da; // TK currently hard coded constant friction
       pvecback[pba->index_bg_rho_da_dr] = pvecback_B[pba->index_bi_rho_da_dr];
       rho_tot += pvecback[pba->index_bg_rho_da_dr];
       p_tot += (1./3.)*pvecback[pba->index_bg_rho_da_dr];
@@ -1824,6 +1823,7 @@ int background_checks(
   }
   /* scalar field, if interacting with dark radiation */
   if (pba->scf_parameterisation == da_de){
+    if (pba->scf_da_friction == constant){
      if(pba->scf_potential == lin) {
        /* Check if scalar field is overdamped  */
      class_test(pba->scf_Y_da < pow(10,(10.7+2*log10(pba->scf_parameters[0]))),
@@ -1848,6 +1848,7 @@ int background_checks(
               "Your friction  Y = %e  is so large that your scalar field asymptotes to a cosmological constant. Decrease friction to Y = %e. \n",
               pba->scf_Y_da,(1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000);
      }
+    }
      
 
   }
@@ -2484,7 +2485,7 @@ int background_initial_conditions(
       break;
       case temp_dep:
       printf("has_da_dr = %d\n",pba->has_da_dr);
-      pvecback_integration[pba->index_bi_rho_da_dr] =  pow(10,-10.);  /**small number to allow friction to grow */
+      pvecback_integration[pba->index_bi_rho_da_dr] =  pow(10,-20.);  /**small number to allow friction to grow */
       break;
     }
   }
