@@ -494,6 +494,16 @@ int background_functions(
       p_tot += (1./3.)*pvecback[pba->index_bg_rho_da_dr];
       dp_dloga += -(4./3.) * pvecback[pba->index_bg_rho_da_dr];
       rho_r += pvecback[pba->index_bg_rho_da_dr];
+      switch (pba->scf_da_friction) {
+        case constant:
+        pvecback[pba->index_bg_da_friction] = pba->scf_Y_da;
+        break;
+        case temp_dep:
+        pvecback[pba->index_bg_da_friction] = pba->scf_c_n_da * pow(pvecback[pba->index_bg_rho_da_dr],pba->scf_n_da/4.);
+        printf("a =%g \t friction = %g \t rho^n/4 = %g \n", a, pvecback[pba->index_bg_da_friction],pvecback[pba->index_bg_rho_da_dr] );
+        // This is kept simple shifting the units to c_n
+        break;
+      }
     }
 
     if ( (pba->scf_potential == lin) && (phi < 0) ) pba->scf_lin_phi_neg = _TRUE_;
@@ -2468,7 +2478,15 @@ int background_initial_conditions(
   }
 
   if (pba->has_da_dr == _TRUE_){
-    pvecback_integration[pba->index_bi_rho_da_dr] = 0.0;
+    switch (pba->scf_da_friction ) {
+      case constant:
+      pvecback_integration[pba->index_bi_rho_da_dr] = 0.0;
+      break;
+      case temp_dep:
+      printf("has_da_dr = %d\n",pba->has_da_dr);
+      pvecback_integration[pba->index_bi_rho_da_dr] =  pow(10,-10.);  /**small number to allow friction to grow */
+      break;
+    }
   }
 
   /* Infer pvecback from pvecback_integration */
