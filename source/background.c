@@ -498,9 +498,14 @@ int background_functions(
         pvecback[pba->index_bg_da_friction] = pba->scf_Y_da;
         break;
         case temp_dep:
+        if (pvecback[pba->index_bg_rho_da_dr] <0.){
+          pvecback[pba->index_bg_da_friction] = 0.;
+        }
+        else {
         pvecback[pba->index_bg_da_friction] = pba->scf_c_n_da * pow(pvecback[pba->index_bg_rho_da_dr],pba->scf_n_da/4.);
-        printf("a =%g \t friction = %g \t rho^n/4 = %g \n", a, pvecback[pba->index_bg_da_friction],pvecback[pba->index_bg_rho_da_dr] );
+        printf("a =%g \t friction = %g \t rho^n/4 = %g \n rho = %g \n n =%g \n", a, pvecback[pba->index_bg_da_friction], pow(pvecback[pba->index_bg_rho_da_dr],pba->scf_n_da/4.),pvecback[pba->index_bg_rho_da_dr],pba->scf_n_da );
         // This is kept simple shifting the units to c_n
+        }
         break;
       }
     }
@@ -2485,7 +2490,7 @@ int background_initial_conditions(
       break;
       case temp_dep:
       printf("has_da_dr = %d\n",pba->has_da_dr);
-      pvecback_integration[pba->index_bi_rho_da_dr] =  pow(10,-20.);  /**small number to allow friction to grow */
+      pvecback_integration[pba->index_bi_rho_da_dr] =  pow(10,-60.);  /**small number to allow friction to grow */
       break;
     }
   }

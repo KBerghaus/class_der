@@ -3498,6 +3498,9 @@ int input_read_parameters_species(struct file_content * pfc,
                  errmsg);
       class_call(parser_read_double(pfc,"scf_c_n_da",&param2,&flag2,errmsg),
                  errmsg,
+                 errmsg); 
+       class_call(parser_read_double(pfc,"scf_n_da",&param3,&flag3,errmsg),
+                 errmsg,
                  errmsg);  
       class_test(((flag1 == _TRUE_) &&(flag2 == _TRUE_)),
                 errmsg,
