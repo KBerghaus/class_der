@@ -2424,8 +2424,8 @@ int input_read_parameters_species(struct file_content * pfc,
   /** Summary: */
 
   /** - Define local variables */
-  int flag1, flag2, flag3, flag_ede;
-  double param1, param2, param3, param_ede;
+  int flag1, flag2, flag3, flag_de;
+  double param1, param2, param3, param_de;
   char string1[_ARGUMENT_LENGTH_MAX_];
   int fileentries;
   int N_ncdm=0, n, entries_read;
@@ -3309,11 +3309,11 @@ int input_read_parameters_species(struct file_content * pfc,
   if (flag3 == _TRUE_){
     /* Does input specify Omega0_da_dr to be shot for using scf_Y_da ?
        This needs to have separate flags to not interfere with fld, Lambda and scf. */
-    class_call(parser_read_double(pfc,"Omega_dadr_cons",&param_ede,&flag_ede,errmsg),
+    class_call(parser_read_double(pfc,"Omega_dadr_cons",&param_de,&flag_de,errmsg),
                errmsg,
                errmsg);
-    if (flag_ede == _TRUE_) {
-      pba->Omega0_da_dr = param_ede;
+    if (flag_de == _TRUE_) {
+      pba->Omega0_da_dr = param_de;
       // Omega_tot += pba->Omega0_da_dr;
     }
   }
@@ -3333,7 +3333,7 @@ int input_read_parameters_species(struct file_content * pfc,
     }
   }
   else if ((flag3 == _TRUE_) && (param3 < 0.)){
-    if ((pba->has_da_dr ==_TRUE_) && (flag_ede == _FALSE_)){
+    if ((pba->has_da_dr ==_TRUE_) && (flag_de == _FALSE_)){
       /* In the case of DA DR, without Omega_dr specified,
         we fill with the sum of scf and da_dr.
         First, set Omega_scf = 1- everything else.
@@ -3345,7 +3345,7 @@ int input_read_parameters_species(struct file_content * pfc,
         printf(" -> matched budget equations by adjusting Omega_scf+Omega_dadr = %g \n",pba->Omega0_scf);
       }
     }
-    else if ((pba->has_da_dr ==_TRUE_) && (flag_ede == _TRUE_)){
+    else if ((pba->has_da_dr ==_TRUE_) && (flag_de == _TRUE_)){
       /* In the case of DA DR, with Omega_dr specified,
         we fill with just scf, having adjusted Omega_tot for dadr.
         So set Omega_scf = 1- everything else.
@@ -3496,8 +3496,23 @@ int input_read_parameters_species(struct file_content * pfc,
       class_call(parser_read_double(pfc,"scf_Y_da",&param1,&flag1,errmsg),
                  errmsg,
                  errmsg);
+      class_call(parser_read_double(pfc,"scf_c_n_da",&param2,&flag2,errmsg),
+                 errmsg,
+                 errmsg);  
+      class_test(((flag1 == _TRUE_) &&(flag2 == _TRUE_)),
+                errmsg,
+                "You can only define constant friction through scf_Y_da or \n the temperature-dependent friction coefficient c_n through scf_c_n_da. \nThe .ini file has both. Choose one.");                   
+
       if (pba->scf_parameterisation == da_de){
-        pba->scf_Y_da = param1;
+        if (flag1 == _TRUE_){
+          pba->scf_Y_da = param1;
+          pba->scf_da_friction = constant;
+        }
+        else if (flag2 == _TRUE_){
+          pba->scf_c_n_da = param2;
+          pba->scf_da_friction = temp_dep;
+          if (flag3 == _TRUE_) pba->scf_n_da = param3;
+        }
          // if(pba->scf_potential == lin) {
          //   /* Check if scalar field is overdamped  */
          // class_test(pba->scf_Y_da < pow(10,(10.5+2*log10(pba->scf_parameters[0]))) && pba->scf_parameters[0] > 2.3*pow(10,-7),
@@ -3525,10 +3540,10 @@ int input_read_parameters_species(struct file_content * pfc,
       }
       else {
         /* Check if we're trying to shoot for scf_Y_da before complaining that no scf_Y_da is passed */
-        class_call(parser_read_double(pfc,"Omega_dadr_cons",&param_ede,&flag_ede,errmsg),
+        class_call(parser_read_double(pfc,"Omega_dadr_cons",&param_de,&flag_de,errmsg),
                    errmsg,
                    errmsg);
-        if (flag_ede == _FALSE_)
+        if (flag_de == _FALSE_)
         class_test(_TRUE_,
                   errmsg,
                   "You have asked for dissipative axion scalar field, but not specified the friction through which it sources dark radiation.\nThis code is currently only set up for constant friction.\nSpecify friction with scf_Y_da in your .ini file.\n");
