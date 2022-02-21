@@ -33,7 +33,9 @@ enum vecback_format {short_info, normal_info, long_info};
 enum interpolation_method {inter_normal, inter_closeby};
 
 /** list of scalr field parametrisations - original CLASS, ede interacting with either DM or nu, da_ede for dissipative axion EDE */
-enum scf_parameterisation{original, da_de};
+enum scf_parameterisation {original, da_de};
+
+enum scf_da_friction {constant, temp_dep};
 
 /** Scalar field potential parametrisations */
 
@@ -142,6 +144,9 @@ struct background
   double scf_Y_da;          /** Friction experienced by dissipative axion DE in Mpc^(-1) */
   double Omega0_da_dr;      /**< \f$ \Omega_{0 idm_dr} \f$: dissipative axion dark radiation */
   // double Omega_ini_da_dr;   /**< Initial fractional energy density of dissipative axion dark radiation */
+  enum scf_da_friction scf_da_friction; /**Is friction constant or temperature dependent? */
+  double scf_c_n_da;       /** Parameters defining friction as a function of rho_dr as Y = c_n rho_dr^(n/4) */
+  double scf_n_da;         /** Power of dr temperature that Y is proportional to */
   short scf_lin_phi_neg;   /**< Is the scf potential linear and phi < 0 at any time? raise this flag, checked in pertbs so that theta_* shooting is safe */
   double Omega0_scf_ke;    /**< \f$ \Omega_{scf, ke}^0 \f$: energy density in scf kinetic energy today */
   double w_scf_0;          /**< \f$ w_{scf}(z=0) \f$: eq of state of scf at z = 0 */
