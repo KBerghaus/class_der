@@ -9432,10 +9432,10 @@ int perturbations_derivs(double tau,
           *( pow(pvecback[pba->index_bg_phi_prime_scf],2)*y[pv->index_pt_theta_da_dr]/3. - k2*pvecback[pba->index_bg_phi_prime_scf]*y[pv->index_pt_phi_scf]/4. );
 
       // /** Additional terms if friction is temperature-dependent */
-      // if (pba->scf_da_friction == temp_dep) {
-      //   dy[pv->index_pt_delta_da_dr] += pvecback[pba->index_bg_da_friction]*pow(pvecback[pba->index_bg_phi_prime_scf],2)/4./a/pvecback[pba->index_bg_rho_da_dr] * y[pv->index_pt_delta_da_dr];
-      //   dy[pv->index_pt_phi_prime_scf] += -3./4. * pvecback[pba->index_bg_da_friction]*a*pvecback[pba->index_bg_phi_prime_scf]*y[pv->index_pt_delta_da_dr];
-      // }
+      if (pba->scf_da_friction == temp_dep) {
+        dy[pv->index_pt_delta_da_dr] += pba->scf_n_da/12.*pvecback[pba->index_bg_da_friction]*pow(pvecback[pba->index_bg_phi_prime_scf],2)/a/pvecback[pba->index_bg_rho_da_dr] *y[pv->index_pt_delta_da_dr];
+        dy[pv->index_pt_phi_prime_scf] += -1./4. * pba->scf_n_da * pvecback[pba->index_bg_da_friction]*a*pvecback[pba->index_bg_phi_prime_scf]*y[pv->index_pt_delta_da_dr];
+      }
 
     }
 
