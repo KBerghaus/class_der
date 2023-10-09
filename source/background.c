@@ -476,8 +476,8 @@ int background_functions(
     p_tot += pvecback[pba->index_bg_p_scf];
     dp_dloga += 0.0; /** <-- This depends on a_prime_over_a, so we cannot add it now! */
     //divide relativistic & nonrelativistic (not very meaningful for oscillatory models)
-    rho_r += 3.*pvecback[pba->index_bg_p_scf]; //field pressure contributes radiation
-    rho_m += pvecback[pba->index_bg_rho_scf] - 3.* pvecback[pba->index_bg_p_scf]; //the rest contributes matter
+    // rho_r += 3.*pvecback[pba->index_bg_p_scf]; //field pressure contributes radiation
+    // rho_m += pvecback[pba->index_bg_rho_scf] - 3.* pvecback[pba->index_bg_p_scf]; //the rest contributes matter
     //printf(" a= %e, Omega_scf = %f, \n ",a, pvecback[pba->index_bg_rho_scf]/rho_tot );
     if (pba->scf_parameterisation == da_de){
       pvecback[pba->index_bg_rho_da_dr] = pvecback_B[pba->index_bi_rho_da_dr];
@@ -1774,7 +1774,7 @@ int background_checks(
               pba->scf_Y_da,(1.5*pow(pba->scf_parameters[0],2)/0.00023-0.00069)*10000);
      }
     }
-     
+
 
   }
 
@@ -2391,7 +2391,7 @@ int background_initial_conditions(
       pvecback_integration[pba->index_bi_rho_da_dr] = 0.0;
       break;
       case temp_dep:
-      printf("has_da_dr = %d\n",pba->has_da_dr);
+      // printf("has_da_dr = %d\n",pba->has_da_dr);
       pvecback_integration[pba->index_bi_rho_da_dr] =  pow(10,-90.);  /**small number to allow friction to grow; this will redshift until it hits attractor solution */
       break;
     }
