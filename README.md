@@ -118,3 +118,9 @@ To get support, please open a new issue on the
 https://github.com/lesgourg/class_public
 
 webpage!
+
+Dark Energy Radiation 
+-----------------------------------
+To run dark energy radiation use 
+
+ ./class dark_radiation_runs_reference.ini

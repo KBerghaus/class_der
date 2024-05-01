@@ -1,4 +1,3 @@
-/** @file background.h Documented includes for background module */
 
 #ifndef __BACKGROUND__
 #define __BACKGROUND__
@@ -32,6 +31,15 @@ enum vecback_format {short_info, normal_info, long_info};
     index (inter_closeby) */
 
 enum interpolation_method {inter_normal, inter_closeby};
+
+/** list of scalr field parametrisations - original CLASS, ede interacting with either DM or nu, da_ede for dissipative axion EDE */
+enum scf_parameterisation {original, da_de};
+
+enum scf_da_friction {constant, temp_dep};
+
+/** Scalar field potential parametrisations */
+
+enum scf_potential {orig, quad, lin};
 
 /**
  * background structure containing all the background information that
@@ -107,6 +115,7 @@ struct background
   double Omega0_lambda;    /**< \f$ \Omega_{0_\Lambda} \f$: cosmological constant */
   double Omega0_fld;       /**< \f$ \Omega_{0 de} \f$: fluid */
   double Omega0_scf;       /**< \f$ \Omega_{0 scf} \f$: scalar field */
+  enum scf_parameterisation scf_parameterisation; /** to store scf parameterisation info, whether original or da_de  */
   short use_ppf; /**< flag switching on PPF perturbation equations instead of true fluid equations for perturbations. It could have been defined inside
                     perturbation structure, but we leave it here in such way to have all fld parameters grouped. */
   double c_gamma_over_c_fld; /**< ppf parameter defined in eq. (16) of 0808.3125 [astro-ph] */
@@ -116,6 +125,12 @@ struct background
   double cs2_fld;  /**< \f$ c^2_{s~DE} \f$: sound speed of the fluid in the frame comoving with the fluid (so, this is
                       not [delta p/delta rho] in the synchronous or newtonian gauge!) */
   double Omega_EDE;        /**< \f$ wa_{DE} \f$: Early Dark Energy density parameter */
+  double w_fld_0;          /**< \f$ w_{scf}(z=0) \f$: eq of state of scf at z = 0 */
+  double w_fld_p3;         /**< \f$ w_{scf}(z=0.3) \f$: eq of state of scf at z = 0.3 */
+  double w_fld_p7;         /**< \f$ w_{scf}(z=0.7) \f$: eq of state of scf at z = 0.7 */
+  double w_fld_1;          /**< \f$ w_{scf}(z=1) \f$: eq of state of scf at z = 1 */
+  double w_fld_2;          /**< \f$ w_{scf}(z=2) \f$: eq of state of scf at z = 2 */
+
   double * scf_parameters; /**< list of parameters describing the scalar field potential */
   short attractor_ic_scf;  /**< whether the scalar field has attractor initial conditions */
   int scf_tuning_index;    /**< index in scf_parameters used for tuning */
@@ -126,6 +141,22 @@ struct background
   double varconst_me; /**< electron mass for varying fundamental constants */
   enum varconst_dependence varconst_dep; /**< dependence of the varying fundamental constants as a function of time */
   double varconst_transition_redshift; /**< redshift of transition between varied fundamental constants and normal fundamental constants in the 'varconst_instant' case*/
+  double scf_Y_da;          /** Friction experienced by dissipative axion DE in Mpc^(-1) */
+  double Omega0_da_dr;      /**< \f$ \Omega_{0 idm_dr} \f$: dissipative axion dark radiation */
+  // double Omega_ini_da_dr;   /**< Initial fractional energy density of dissipative axion dark radiation */
+  enum scf_da_friction scf_da_friction; /**Is friction constant or temperature dependent? */
+  double scf_c_n_da;       /** Parameters defining friction as a function of rho_dr as Y = c_n rho_dr^(n/4) */
+  double scf_n_da;         /** Power of dr temperature that Y is proportional to */
+  short scf_lin_phi_neg;   /**< Is the scf potential linear and phi < 0 at any time? raise this flag, checked in pertbs so that theta_* shooting is safe */
+  double Omega0_scf_ke;    /**< \f$ \Omega_{scf, ke}^0 \f$: energy density in scf kinetic energy today */
+  double w_scf_0;          /**< \f$ w_{scf}(z=0) \f$: eq of state of scf at z = 0 */
+  double w_scf_p3;         /**< \f$ w_{scf}(z=0.3) \f$: eq of state of scf at z = 0.3 */
+  double w_scf_p7;         /**< \f$ w_{scf}(z=0.7) \f$: eq of state of scf at z = 0.7 */
+  double w_scf_1;          /**< \f$ w_{scf}(z=1) \f$: eq of state of scf at z = 1 */
+  double w_scf_2;          /**< \f$ w_{scf}(z=2) \f$: eq of state of scf at z = 2 */
+
+
+  enum scf_potential scf_potential; /**< scf potential form - orig for class original, quad for quadratic 1/2 m^2 phi^2, lin for linear C phi */
 
   //@}
 
@@ -176,6 +207,7 @@ struct background
   int index_bg_rho_ur;        /**< relativistic neutrinos/relics density */
   int index_bg_rho_dcdm;      /**< dcdm density */
   int index_bg_rho_dr;        /**< dr density */
+  int index_bg_rh0_da_dr;     /**< dissipative axion dark radiation density */
 
   int index_bg_phi_scf;       /**< scalar field value */
   int index_bg_phi_prime_scf; /**< scalar field derivative wrt conformal time */
@@ -185,6 +217,9 @@ struct background
   int index_bg_rho_scf;       /**< scalar field energy density */
   int index_bg_p_scf;         /**< scalar field pressure */
   int index_bg_p_prime_scf;         /**< scalar field pressure */
+
+  int index_bg_rho_da_dr;     /**< dark radiation energy density for dr that interacts with DA DE */
+  int index_bg_da_friction;  /** dissipative axion friction */
 
   int index_bg_rho_ncdm1;     /**< density of first ncdm species (others contiguous) */
   int index_bg_p_ncdm1;       /**< pressure of first ncdm species (others contiguous) */
@@ -261,6 +296,9 @@ struct background
   int index_bi_rho_fld; /**< {B} fluid density */
   int index_bi_phi_scf;       /**< {B} scalar field value */
   int index_bi_phi_prime_scf; /**< {B} scalar field derivative wrt conformal time */
+  int index_bi_rho_da_dr;     /**< {B} DA dr density */
+
+
 
   int index_bi_time;    /**< {C} proper (cosmological) time in Mpc */
   int index_bi_rs;      /**< {C} sound horizon */
@@ -287,6 +325,7 @@ struct background
   short has_idm;       /**< presence of interacting dark matter with photons, baryons, and idr */
   short has_dcdm;      /**< presence of decaying cold dark matter? */
   short has_dr;        /**< presence of relativistic decay radiation? */
+  short has_da_dr;     /**< presence of dissipative axion sourcing dark radiation? */
   short has_scf;       /**< presence of a scalar field? */
   short has_ncdm;      /**< presence of non-cold dark matter? */
   short has_lambda;    /**< presence of cosmological constant? */
